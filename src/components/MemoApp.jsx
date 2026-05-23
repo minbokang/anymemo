@@ -1,17 +1,68 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useMemos } from '../hooks/useMemos'
+import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick'
+import { useToast } from '../hooks/useToast'
+import { formatRelativeTime } from '../lib/formatRelativeTime'
+import ConfirmDialog from './ConfirmDialog'
+import Toast from './Toast'
 
-function formatDate(iso) {
-  if (!iso) return ''
-  return new Date(iso).toLocaleString('ko-KR', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+function IconSun({ className = 'h-4 w-4' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
+      <circle cx="10" cy="10" r="3.25" />
+      <path strokeLinecap="round" d="M10 2.25v1.75M10 16v1.75M2.25 10h1.75M16 10h1.75M4.4 4.4l1.24 1.24M14.36 14.36l1.24 1.24M4.4 15.6l1.24-1.24M14.36 5.64l1.24-1.24" />
+    </svg>
+  )
+}
+
+function IconMoon({ className = 'h-4 w-4' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14.8 12.1a5.2 5.2 0 01-6.8-6.8 6.1 6.1 0 106.8 6.8z"
+      />
+    </svg>
+  )
+}
+
+function IconPin({ pinned, className = 'h-4 w-4' }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" aria-hidden>
+      <circle
+        cx="10"
+        cy="10"
+        r={pinned ? 4.5 : 4}
+        fill={pinned ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth={pinned ? 0 : 2}
+      />
+    </svg>
+  )
+}
+
+function pinIconClass(pinned) {
+  return pinned
+    ? 'text-amber-600 dark:text-amber-500'
+    : 'text-zinc-500 dark:text-zinc-400'
 }
 
 function SaveIndicator({ status, className = '' }) {
@@ -97,6 +148,7 @@ function MemoListItem({
   isActive,
   isDragOver,
   searchActive,
+  timeTick,
   onSelect,
   onTogglePin,
   onMoveUp,
@@ -106,6 +158,7 @@ function MemoListItem({
   onDragLeave,
   onDrop,
 }) {
+  void timeTick
   return (
     <li
       className={`mb-1 ${isDragOver ? 'rounded-lg ring-2 ring-zinc-300 dark:ring-zinc-600' : ''}`}
@@ -114,7 +167,7 @@ function MemoListItem({
       onDrop={onDrop}
     >
       <div
-        className={`flex items-stretch overflow-hidden rounded-lg ${
+        className={`flex items-stretch rounded-lg ${
           isActive
             ? 'bg-zinc-100 dark:bg-zinc-800'
             : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60'
@@ -132,20 +185,6 @@ function MemoListItem({
           title={searchActive ? '검색 중 순서 변경 불가' : '드래그하여 순서 변경'}
         >
           ⠿
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onTogglePin()
-          }}
-          className="flex min-h-11 shrink-0 items-center px-2 text-lg leading-none active:bg-zinc-100 dark:active:bg-zinc-700"
-          aria-label={memo.pinned ? '고정 해제' : '상단 고정'}
-          title={memo.pinned ? '고정 해제' : '상단 고정'}
-        >
-          <span className={memo.pinned ? 'text-amber-500' : 'text-zinc-300 dark:text-zinc-600'}>
-            {memo.pinned ? '★' : '☆'}
-          </span>
         </button>
         <div className="flex shrink-0 flex-col border-r border-zinc-100 dark:border-zinc-700 md:hidden">
           <button
@@ -182,8 +221,27 @@ function MemoListItem({
             {memo.title || '제목 없음'}
           </p>
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            {formatDate(memo.updated_at)}
+            {formatRelativeTime(memo.updated_at)}
           </p>
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onTogglePin()
+          }}
+          className={`flex min-h-11 w-11 shrink-0 items-center justify-center border-l active:bg-zinc-100 dark:active:bg-zinc-700 ${
+            memo.pinned
+              ? 'border-amber-200/80 bg-amber-50/50 dark:border-amber-900/50 dark:bg-amber-950/30'
+              : 'border-zinc-100 dark:border-zinc-700'
+          }`}
+          aria-label={memo.pinned ? '고정 해제' : '상단 고정'}
+          title={memo.pinned ? '고정 해제' : '상단 고정'}
+        >
+          <IconPin
+            pinned={memo.pinned}
+            className={`h-5 w-5 ${pinIconClass(memo.pinned)}`}
+          />
         </button>
       </div>
     </li>
@@ -195,7 +253,11 @@ export default function MemoApp() {
   const { isDark, toggleTheme } = useTheme()
   const [mobilePane, setMobilePane] = useState('list')
   const [searchQuery, setSearchQuery] = useState('')
+  const [memoToDelete, setMemoToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   const searchInputRef = useRef(null)
+  const timeTick = useRelativeTimeTick()
+  const { toast, showToast, dismissToast } = useToast()
   const {
     memos,
     activeId,
@@ -212,7 +274,7 @@ export default function MemoApp() {
     moveMemo,
     togglePin,
     updateDraft,
-  } = useMemos(user?.id)
+  } = useMemos(user?.id, { notify: showToast })
 
   const dragIdRef = useRef(null)
   const [dragOverId, setDragOverId] = useState(null)
@@ -240,10 +302,33 @@ export default function MemoApp() {
     setMobilePane('editor')
   }
 
+  const handleDeleteMemo = (memo) => setMemoToDelete(memo)
+
+  const confirmDeleteMemo = async () => {
+    if (!memoToDelete || deleting) return
+    setDeleting(true)
+    try {
+      await deleteMemo(memoToDelete.id)
+      setMemoToDelete(null)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!activeId) setMobilePane('list')
+  }, [activeId])
+
   useKeyboardShortcuts({
     onNewMemo: () => void handleCreateMemo(),
     onFocusSearch: () => searchInputRef.current?.focus(),
-    onEscape: () => setMobilePane('list'),
+    onEscape: () => {
+      if (memoToDelete && !deleting) {
+        setMemoToDelete(null)
+        return
+      }
+      setMobilePane('list')
+    },
   })
 
   const showListOnMobile = mobilePane === 'list'
@@ -265,11 +350,11 @@ export default function MemoApp() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="min-h-9 shrink-0 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs text-zinc-700 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:active:bg-zinc-800"
+            className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
             aria-label={isDark ? '라이트 모드' : '다크 모드'}
             title={isDark ? '라이트 모드' : '다크 모드'}
           >
-            {isDark ? '☀️' : '🌙'}
+            {isDark ? <IconSun /> : <IconMoon />}
           </button>
           <span className="hidden max-w-[140px] truncate text-xs text-zinc-500 dark:text-zinc-400 md:inline">
             {user.email}
@@ -333,6 +418,7 @@ export default function MemoApp() {
                 isActive={memo.id === activeId}
                 isDragOver={dragOverId === memo.id}
                 searchActive={searchActive}
+                timeTick={timeTick}
                 onSelect={() => handleSelectMemo(memo)}
                 onTogglePin={() => togglePin(memo.id)}
                 onMoveUp={() => moveMemo(memo.id, 'up')}
@@ -360,7 +446,7 @@ export default function MemoApp() {
               />
             ))}
           </ul>
-          <p className="hidden border-t border-zinc-100 px-3 py-2 text-[10px] text-zinc-400 dark:border-zinc-800 dark:text-zinc-500 md:block">
+          <p className="panel-footer hidden px-3 text-[10px] leading-none text-zinc-400 dark:text-zinc-500 md:flex">
             ⌘N 새 메모 · / 검색 · Esc 목록
           </p>
         </aside>
@@ -372,31 +458,17 @@ export default function MemoApp() {
         >
           {activeMemo ? (
             <>
-              <div className="flex items-center gap-2 border-b border-zinc-100 px-3 py-2 safe-top dark:border-zinc-800 sm:px-4">
+              {/* 모바일 전용: ← 목록 · 저장 상태 (데스크톱은 상단 앱 헤더에 표시) */}
+              <div className="flex min-w-0 shrink-0 items-center gap-2 border-b border-zinc-100 px-3 py-1.5 dark:border-zinc-800 md:hidden sm:px-4">
                 <button
                   type="button"
                   onClick={() => setMobilePane('list')}
-                  className="min-h-10 shrink-0 rounded-lg px-2 text-sm font-medium text-zinc-600 active:bg-zinc-100 dark:text-zinc-300 dark:active:bg-zinc-800 md:hidden"
+                  className="inline-flex h-8 shrink-0 items-center rounded-lg px-2 text-sm font-medium leading-none text-zinc-600 active:bg-zinc-100 dark:text-zinc-300 dark:active:bg-zinc-800"
                   aria-label="목록으로"
                 >
                   ← 목록
                 </button>
-                <SaveIndicator status={saveStatus} className="sm:hidden" />
-                <button
-                  type="button"
-                  onClick={() => togglePin(activeMemo.id)}
-                  className="min-h-10 shrink-0 rounded-lg border border-zinc-200 px-3 py-2 text-sm active:bg-zinc-50 dark:border-zinc-700 dark:active:bg-zinc-800"
-                  title={activeMemo.pinned ? '고정 해제' : '상단 고정'}
-                >
-                  {activeMemo.pinned ? '★ 고정됨' : '☆ 고정'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteMemo(activeMemo.id)}
-                  className="ml-auto min-h-10 shrink-0 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 active:bg-red-50 dark:border-red-900 dark:text-red-400 dark:active:bg-red-950"
-                >
-                  삭제
-                </button>
+                <SaveIndicator status={saveStatus} className="ml-auto sm:hidden" />
               </div>
               <input
                 type="text"
@@ -411,6 +483,32 @@ export default function MemoApp() {
                 placeholder="내용을 입력하세요…"
                 className="min-h-0 flex-1 resize-none bg-white px-3 py-3 text-base leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4 sm:text-sm"
               />
+              <div className="panel-footer flex items-center justify-end gap-1 bg-white px-3 py-2 safe-bottom dark:bg-zinc-900 sm:px-4 md:py-0">
+                <button
+                  type="button"
+                  onClick={() => togglePin(activeMemo.id)}
+                  aria-label={activeMemo.pinned ? '고정 해제' : '상단 고정'}
+                  title={activeMemo.pinned ? '고정 해제' : '상단 고정'}
+                  className={`inline-flex h-7 min-w-[3.5rem] items-center justify-center gap-1 rounded-md border px-2 text-[11px] font-medium leading-none whitespace-nowrap active:bg-zinc-50 dark:active:bg-zinc-800 ${
+                    activeMemo.pinned
+                      ? 'border-amber-200 bg-amber-50/80 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-400'
+                      : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
+                  }`}
+                >
+                  <IconPin
+                    pinned={activeMemo.pinned}
+                    className={`h-3 w-3 shrink-0 ${pinIconClass(activeMemo.pinned)}`}
+                  />
+                  {activeMemo.pinned ? '고정됨' : '고정'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteMemo(activeMemo)}
+                  className="inline-flex h-7 items-center justify-center rounded-md border border-red-200 px-2.5 text-[11px] font-medium leading-none whitespace-nowrap text-red-600 active:bg-red-50 dark:border-red-900/70 dark:text-red-400 dark:active:bg-red-950/80"
+                >
+                  삭제
+                </button>
+              </div>
             </>
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
@@ -428,6 +526,25 @@ export default function MemoApp() {
           )}
         </section>
       </div>
+
+      <ConfirmDialog
+        open={memoToDelete != null}
+        title="메모를 삭제할까요?"
+        description={
+          memoToDelete
+            ? `「${memoToDelete.title?.trim() || '제목 없음'}」 메모를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`
+            : ''
+        }
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        confirming={deleting}
+        onConfirm={() => void confirmDeleteMemo()}
+        onCancel={() => {
+          if (!deleting) setMemoToDelete(null)
+        }}
+      />
+
+      <Toast toast={toast} onDismiss={dismissToast} />
     </div>
   )
 }

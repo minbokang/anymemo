@@ -5,7 +5,11 @@ import {
   loadPendingOps,
   saveMemosCache,
 } from '../lib/memoCache'
-import { loadLastMemoId, saveLastMemoId } from '../lib/userPrefs'
+import {
+  clearLastMemoId,
+  loadLastMemoId,
+  saveLastMemoId,
+} from '../lib/userPrefs'
 import {
   applyLocalMemoChange,
   flushPendingOps,
@@ -27,8 +31,14 @@ function nowIso() {
   return new Date().toISOString()
 }
 
-export function useMemos(userId) {
+export function useMemos(userId, { notify } = {}) {
   const online = useOnlineStatus()
+  const notifyRef = useRef(notify)
+  notifyRef.current = notify
+
+  const pushNotice = useCallback((message, variant = 'error') => {
+    notifyRef.current?.(message, variant)
+  }, [])
   const [memos, setMemos] = useState([])
   const [activeId, setActiveId] = useState(null)
   const [draft, setDraft] = useState({ title: '', content: '' })
@@ -116,11 +126,12 @@ export function useMemos(userId) {
     } catch (err) {
       console.error(err)
       setSyncStatus('error')
+      pushNotice('동기화에 실패했습니다. 나중에 다시 시도됩니다.')
       return null
     } finally {
       syncingRef.current = false
     }
-  }, [userId, online, persistMemos, refreshPendingCount])
+  }, [userId, online, persistMemos, refreshPendingCount, pushNotice])
 
   const fetchMemos = useCallback(async () => {
     if (!userId) return
@@ -162,13 +173,22 @@ export function useMemos(userId) {
       console.error(err)
       if (cached.length) {
         setSyncStatus('offline')
+        pushNotice('서버 목록을 불러오지 못했습니다. 저장된 메모를 표시합니다.')
       } else {
         setSyncStatus('error')
+        pushNotice('메모 목록을 불러오지 못했습니다.')
       }
       setLoading(false)
       return cached
     }
-  }, [userId, online, persistMemos, syncToServer, refreshPendingCount])
+  }, [
+    userId,
+    online,
+    persistMemos,
+    syncToServer,
+    refreshPendingCount,
+    pushNotice,
+  ])
 
   const restoreLastMemo = useCallback(
     (list) => {
@@ -426,20 +446,30 @@ export function useMemos(userId) {
 
   const deleteMemo = useCallback(
     async (id) => {
+      const deletedIndex = memosRef.current.findIndex((m) => m.id === id)
+      const wasActive = id === activeId
+
       const pickFallback = (list) => {
-        const fallback = list[0]
-        if (fallback) selectMemo(fallback)
-        else {
+        if (!list.length) {
+          if (loadLastMemoId(userId) === id) clearLastMemoId(userId)
           setActiveId(null)
           setDraft({ title: '', content: '' })
           dirtyRef.current = false
+          setSaveStatus('idle')
+          return
         }
+        const idx =
+          deletedIndex < 0
+            ? 0
+            : Math.min(deletedIndex, list.length - 1)
+        selectMemo(list[idx])
       }
 
       const finalizeDelete = async (next) => {
         const ordered = withSortOrder(next)
         await applyOrder(ordered)
-        if (id === activeId) pickFallback(ordered)
+        if (wasActive) pickFallback(ordered)
+        else if (loadLastMemoId(userId) === id) clearLastMemoId(userId)
       }
 
       if (!online) {
@@ -454,6 +484,7 @@ export function useMemos(userId) {
       const { error } = await supabase.from('memos').delete().eq('id', id)
       if (error) {
         console.error(error)
+        pushNotice('삭제에 실패했습니다. 연결되면 다시 시도합니다.')
         const next = removeLocalMemo(memosRef.current, id)
         await upsertPendingOp(userId, { type: 'delete', id })
         await refreshPendingCount()
@@ -464,7 +495,15 @@ export function useMemos(userId) {
 
       await finalizeDelete(removeLocalMemo(memosRef.current, id))
     },
-    [userId, online, activeId, selectMemo, applyOrder, refreshPendingCount],
+    [
+      userId,
+      online,
+      activeId,
+      selectMemo,
+      applyOrder,
+      refreshPendingCount,
+      pushNotice,
+    ],
   )
 
   const updateDraft = useCallback((field, value) => {
@@ -527,6 +566,8 @@ export function useMemos(userId) {
 
       if (error) {
         console.error(error)
+        setSaveStatus('error')
+        pushNotice('저장에 실패했습니다. 기기에 임시 저장했습니다.')
         await applyLocal()
         return
       }
@@ -546,6 +587,7 @@ export function useMemos(userId) {
     showSaved,
     showLocalSaved,
     refreshPendingCount,
+    pushNotice,
   ])
 
   useEffect(() => () => clearSavedTimer(), [])
