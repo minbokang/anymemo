@@ -1,0 +1,34 @@
+Supabase CLI 마이그레이션
+======================
+
+사전 준비 (최초 1회)
+--------------------
+1. 로그인 (브라우저 인증)
+   npx supabase login
+
+2. Access Token으로 로그인 (CI/비대화형, supabase.md 참고)
+   export SUPABASE_ACCESS_TOKEN=sbp_xxxx
+   npx supabase login --token "$SUPABASE_ACCESS_TOKEN"
+
+프로젝트 연결 & 마이그레이션 적용
+--------------------------------
+export SUPABASE_DB_PASSWORD='your-database-password'
+
+npm run supabase:link
+# 비밀번호 프롬프트가 나오면 위 SUPABASE_DB_PASSWORD 사용
+
+npm run supabase:push
+
+또는 한 줄씩:
+  supabase link --project-ref qrwlpvrvmjvaxesxvpkp
+  supabase db push
+
+마이그레이션 파일
+-----------------
+supabase/migrations/20250523124300_memos.sql  (memos 테이블 + RLS + Realtime)
+
+연결 오류 시
+------------
+- db.qrwlpvrvmjvaxesxvpkp.supabase.co DNS 실패 → 대시보드에서 프로젝트 일시중지 해제
+- link 시 Unauthorized → supabase login 다시 실행
+- pooler 인증 오류 → supabase link --skip-pooler 후 db push 재시도
