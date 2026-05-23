@@ -134,43 +134,37 @@ export function useMemos(userId, { notify } = {}) {
     }
   }, [userId, online, persistMemos, refreshPendingCount, pushNotice])
 
+  const pullServerMemos = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('memos')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('updated_at', { ascending: false })
+    if (error) throw error
+    return data ?? []
+  }, [])
+
   const fetchMemos = useCallback(async () => {
     if (!userId) return
 
     const cached = await loadMemosCache(userId)
     await refreshPendingCount()
 
-    if (cached.length) {
-      await persistMemos(cached)
-      setLoading(false)
-    }
-
     if (!online) {
+      if (cached.length) await persistMemos(cached)
       const pending = await loadPendingOps(userId)
       setSyncStatus(pending.length ? 'pending' : 'offline')
       setLoading(false)
       return cached
     }
 
+    setLoading(true)
     setSyncStatus('syncing')
     try {
-      try {
-        await syncToServer()
-      } catch (syncErr) {
-        console.error(syncErr)
-      }
-
-      let serverMemos = []
-      const { data, error } = await supabase
-        .from('memos')
-        .select('*')
-        .order('sort_order', { ascending: true })
-        .order('updated_at', { ascending: false })
-
-      if (error) throw error
-      serverMemos = data ?? []
-
+      // 온라인: 서버 목록을 먼저 받고, 대기 작업(삭제는 마지막) 반영
+      let serverMemos = await pullServerMemos()
       let localCache = await loadMemosCache(userId)
+
       const queued = await queueMissingServerMemos(
         userId,
         serverMemos,
@@ -181,25 +175,29 @@ export function useMemos(userId, { notify } = {}) {
           `${queued}개 메모가 서버에 없어 업로드를 시도합니다.`,
           'info',
         )
-        await syncToServer()
-        const refetch = await supabase
-          .from('memos')
-          .select('*')
-          .order('sort_order', { ascending: true })
-          .order('updated_at', { ascending: false })
-        if (!refetch.error) serverMemos = refetch.data ?? []
-        localCache = await loadMemosCache(userId)
       }
 
-      const merged = mergeMemos(serverMemos, localCache)
-      await persistMemos(merged)
+      try {
+        await syncToServer()
+      } catch (syncErr) {
+        console.error(syncErr)
+      }
+
+      serverMemos = await pullServerMemos()
+      localCache = await loadMemosCache(userId)
       const pending = await loadPendingOps(userId)
+      const merged = pending.length
+        ? mergeMemos(serverMemos, localCache)
+        : sortMemos(serverMemos)
+
+      await persistMemos(merged)
       setSyncStatus(pending.length ? 'pending' : 'idle')
       setLoading(false)
       return merged
     } catch (err) {
       console.error(err)
       if (cached.length) {
+        await persistMemos(cached)
         setSyncStatus('offline')
         pushNotice('서버 목록을 불러오지 못했습니다. 저장된 메모를 표시합니다.')
       } else {
@@ -216,6 +214,7 @@ export function useMemos(userId, { notify } = {}) {
     syncToServer,
     refreshPendingCount,
     pushNotice,
+    pullServerMemos,
   ])
 
   const restoreLastMemo = useCallback(

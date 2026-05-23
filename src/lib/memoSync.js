@@ -88,39 +88,54 @@ export async function upsertPendingOp(userId, op) {
   await savePendingOps(userId, [...ops, op])
 }
 
+async function applyPendingOp(userId, op) {
+  if (op.type === 'insert') {
+    const { error } = await supabase.from('memos').insert({
+      id: op.memo.id,
+      user_id: userId,
+      title: op.memo.title,
+      content: op.memo.content,
+      created_at: op.memo.created_at,
+      updated_at: op.memo.updated_at,
+      sort_order: op.memo.sort_order ?? 0,
+      pinned: op.memo.pinned ?? false,
+    })
+    if (error && error.code !== '23505') throw error
+    return
+  }
+  if (op.type === 'update') {
+    const payload = {
+      title: op.title,
+      content: op.content,
+      updated_at: op.updated_at,
+    }
+    if (op.pinned !== undefined) payload.pinned = op.pinned
+    const { error } = await supabase.from('memos').update(payload).eq('id', op.id)
+    if (error) throw error
+    return
+  }
+  if (op.type === 'reorder') {
+    await saveMemoOrder(userId, op.memos)
+    return
+  }
+  if (op.type === 'delete') {
+    const { error } = await supabase.from('memos').delete().eq('id', op.id)
+    if (error) throw error
+  }
+}
+
 export async function flushPendingOps(userId) {
   const ops = await loadPendingOps(userId)
   if (!ops.length) return { ok: true, data: null }
 
-  for (const op of ops) {
-    if (op.type === 'insert') {
-      const { error } = await supabase.from('memos').insert({
-        id: op.memo.id,
-        user_id: userId,
-        title: op.memo.title,
-        content: op.memo.content,
-        created_at: op.memo.created_at,
-        updated_at: op.memo.updated_at,
-        sort_order: op.memo.sort_order ?? 0,
-        pinned: op.memo.pinned ?? false,
-      })
-      // 이미 서버에 있으면(다른 기기에서 반영됨) 대기열에서만 제거하고 계속
-      if (error && error.code !== '23505') throw error
-    } else if (op.type === 'update') {
-      const payload = {
-        title: op.title,
-        content: op.content,
-        updated_at: op.updated_at,
-      }
-      if (op.pinned !== undefined) payload.pinned = op.pinned
-      const { error } = await supabase.from('memos').update(payload).eq('id', op.id)
-      if (error) throw error
-    } else if (op.type === 'reorder') {
-      await saveMemoOrder(userId, op.memos)
-    } else if (op.type === 'delete') {
-      const { error } = await supabase.from('memos').delete().eq('id', op.id)
-      if (error) throw error
-    }
+  // 삭제는 마지막에 — 서버 목록을 먼저 받은 뒤 반영하기 위함
+  const inserts = ops.filter((o) => o.type === 'insert')
+  const updates = ops.filter((o) => o.type === 'update')
+  const reorders = ops.filter((o) => o.type === 'reorder')
+  const deletes = ops.filter((o) => o.type === 'delete')
+
+  for (const op of [...inserts, ...updates, ...reorders, ...deletes]) {
+    await applyPendingOp(userId, op)
   }
 
   await clearPendingOps(userId)
