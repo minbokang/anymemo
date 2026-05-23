@@ -37,7 +37,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+    <div className="mx-auto w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom sm:p-6">
       <h1 className="mb-1 text-xl font-medium text-zinc-900">AnyMemo</h1>
       <p className="mb-6 text-sm text-zinc-500">
         {mode === 'signIn' ? '이메일로 로그인' : '새 계정 만들기'}
@@ -52,7 +52,7 @@ export default function AuthForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="min-h-11 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-500 sm:text-sm"
           />
           {mode === 'signUp' && (
             <span className="mt-1 block text-xs text-zinc-400">
@@ -72,7 +72,7 @@ export default function AuthForm() {
             }
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="min-h-11 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-500 sm:text-sm"
           />
         </label>
 
@@ -90,7 +90,7 @@ export default function AuthForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+          className="min-h-11 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white active:bg-zinc-800 disabled:opacity-50"
         >
           {submitting
             ? '처리 중…'

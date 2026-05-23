@@ -15,7 +15,7 @@ function App() {
 
   if (!user) {
     return (
-      <div className="flex min-h-svh items-center justify-center bg-zinc-50 p-4">
+      <div className="flex min-h-svh items-center justify-center bg-zinc-50 p-4 safe-top safe-bottom">
         <AuthForm />
       </div>
     )

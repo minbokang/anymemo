@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useMemos } from '../hooks/useMemos'
 
@@ -24,7 +25,7 @@ function SaveIndicator({ status, className = '' }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.className} ${className}`}
+      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium sm:px-2.5 sm:text-xs ${config.className} ${className}`}
       role="status"
       aria-live="polite"
     >
@@ -36,35 +37,34 @@ function SaveIndicator({ status, className = '' }) {
 function SyncIndicator({ online, syncStatus, pendingCount }) {
   if (!online) {
     return (
-      <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-600">
-        오프라인
-        {pendingCount > 0 ? ` · 동기화 ${pendingCount}건` : ''}
+      <span className="inline-flex shrink-0 items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-600 sm:text-xs">
+        오프라인{pendingCount > 0 ? ` · ${pendingCount}` : ''}
       </span>
     )
   }
   if (syncStatus === 'syncing') {
     return (
-      <span className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-800">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-800 sm:text-xs">
         동기화 중…
       </span>
     )
   }
   if (syncStatus === 'pending' || pendingCount > 0) {
     return (
-      <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-        동기화 대기 {pendingCount > 0 ? `(${pendingCount})` : ''}
+      <span className="inline-flex shrink-0 items-center rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 sm:text-xs">
+        대기{pendingCount > 0 ? ` ${pendingCount}` : ''}
       </span>
     )
   }
   if (syncStatus === 'error') {
     return (
-      <span className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700 sm:text-xs">
         동기화 실패
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+    <span className="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800 sm:text-xs">
       온라인
     </span>
   )
@@ -72,6 +72,7 @@ function SyncIndicator({ online, syncStatus, pendingCount }) {
 
 export default function MemoApp() {
   const { user, signOut } = useAuth()
+  const [mobilePane, setMobilePane] = useState('list')
   const {
     memos,
     activeId,
@@ -89,24 +90,37 @@ export default function MemoApp() {
 
   const activeMemo = memos.find((m) => m.id === activeId)
 
+  const handleSelectMemo = (memo) => {
+    selectMemo(memo)
+    setMobilePane('editor')
+  }
+
+  const handleCreateMemo = async () => {
+    await createMemo()
+    setMobilePane('editor')
+  }
+
+  const showListOnMobile = mobilePane === 'list'
+  const showEditorOnMobile = mobilePane === 'editor'
+
   return (
-    <div className="flex h-svh flex-col bg-zinc-50">
-      <header className="flex shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 py-2.5">
-        <span className="text-sm font-medium text-zinc-900">AnyMemo</span>
-        <div className="flex items-center gap-2">
+    <div className="flex h-svh flex-col bg-zinc-50 supports-[height:100dvh]:h-dvh">
+      <header className="flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-white px-3 py-2 safe-top sm:px-4 sm:py-2.5">
+        <span className="shrink-0 text-sm font-medium text-zinc-900">AnyMemo</span>
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
           <SyncIndicator
             online={online}
             syncStatus={syncStatus}
             pendingCount={pendingCount}
           />
-          <SaveIndicator status={saveStatus} />
-          <span className="max-w-[180px] truncate text-xs text-zinc-500">
+          <SaveIndicator status={saveStatus} className="hidden sm:inline-flex" />
+          <span className="hidden max-w-[140px] truncate text-xs text-zinc-500 md:inline">
             {user.email}
           </span>
           <button
             type="button"
             onClick={() => signOut()}
-            className="rounded border border-zinc-300 px-2.5 py-1 text-xs text-zinc-700 hover:bg-zinc-100"
+            className="min-h-9 shrink-0 rounded border border-zinc-300 px-2.5 py-1.5 text-xs text-zinc-700 active:bg-zinc-100 sm:px-3"
           >
             로그아웃
           </button>
@@ -114,41 +128,44 @@ export default function MemoApp() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-56 shrink-0 flex-col border-r border-zinc-200 bg-white md:w-64">
-          <div className="border-b border-zinc-100 p-2">
+        {/* 메모 목록 */}
+        <aside
+          className={`flex w-full flex-col border-zinc-200 bg-white md:w-64 md:shrink-0 md:border-r lg:w-72 ${
+            showListOnMobile ? 'flex' : 'hidden md:flex'
+          }`}
+        >
+          <div className="border-b border-zinc-100 p-2 sm:p-3">
             <button
               type="button"
-              onClick={createMemo}
-              className="w-full rounded bg-zinc-900 px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800"
+              onClick={handleCreateMemo}
+              className="min-h-11 w-full rounded-lg bg-zinc-900 px-3 py-2.5 text-sm font-medium text-white active:bg-zinc-800"
             >
               + 새 메모
             </button>
           </div>
 
-          <ul className="flex-1 overflow-y-auto p-2">
+          <ul className="flex-1 overflow-y-auto overscroll-contain p-2 sm:p-3">
             {loading && (
-              <li className="px-2 py-3 text-xs text-zinc-400">불러오는 중…</li>
+              <li className="px-2 py-3 text-sm text-zinc-400">불러오는 중…</li>
             )}
             {!loading && memos.length === 0 && (
-              <li className="px-2 py-3 text-xs text-zinc-400">
-                메모가 없습니다
-              </li>
+              <li className="px-2 py-3 text-sm text-zinc-400">메모가 없습니다</li>
             )}
             {memos.map((memo) => (
               <li key={memo.id}>
                 <button
                   type="button"
-                  onClick={() => selectMemo(memo)}
-                  className={`mb-1 w-full rounded px-2 py-2 text-left transition-colors ${
+                  onClick={() => handleSelectMemo(memo)}
+                  className={`mb-1 w-full rounded-lg px-3 py-3 text-left active:bg-zinc-100 ${
                     memo.id === activeId
-                      ? 'bg-zinc-100'
+                      ? 'bg-zinc-100 md:bg-zinc-100'
                       : 'hover:bg-zinc-50'
                   }`}
                 >
-                  <p className="truncate text-sm font-medium text-zinc-800">
+                  <p className="truncate text-base font-medium text-zinc-800 sm:text-sm">
                     {memo.title || '제목 없음'}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-zinc-400">
+                  <p className="mt-1 text-xs text-zinc-400">
                     {formatDate(memo.updated_at)}
                   </p>
                 </button>
@@ -157,15 +174,28 @@ export default function MemoApp() {
           </ul>
         </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col bg-white">
+        {/* 편집 영역 */}
+        <section
+          className={`min-w-0 flex-1 flex-col bg-white ${
+            showEditorOnMobile ? 'flex' : 'hidden md:flex'
+          }`}
+        >
           {activeMemo ? (
             <>
-              <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-2">
-                <SaveIndicator status={saveStatus} />
+              <div className="flex items-center gap-2 border-b border-zinc-100 px-3 py-2 safe-top sm:px-4">
+                <button
+                  type="button"
+                  onClick={() => setMobilePane('list')}
+                  className="min-h-10 shrink-0 rounded-lg px-2 text-sm font-medium text-zinc-600 active:bg-zinc-100 md:hidden"
+                  aria-label="목록으로"
+                >
+                  ← 목록
+                </button>
+                <SaveIndicator status={saveStatus} className="sm:hidden" />
                 <button
                   type="button"
                   onClick={() => deleteMemo(activeMemo.id)}
-                  className="ml-auto rounded border border-red-200 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50"
+                  className="ml-auto min-h-10 shrink-0 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 active:bg-red-50"
                 >
                   삭제
                 </button>
@@ -175,24 +205,24 @@ export default function MemoApp() {
                 value={draft.title}
                 onChange={(e) => updateDraft('title', e.target.value)}
                 placeholder="제목"
-                className="border-b border-zinc-100 px-4 py-3 text-lg font-medium text-zinc-900 outline-none placeholder:text-zinc-300"
+                className="border-b border-zinc-100 px-3 py-3 text-lg font-medium text-zinc-900 outline-none placeholder:text-zinc-300 sm:px-4"
               />
               <textarea
                 value={draft.content}
                 onChange={(e) => updateDraft('content', e.target.value)}
                 placeholder="내용을 입력하세요…"
-                className="min-h-0 flex-1 resize-none px-4 py-3 text-sm leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300"
+                className="min-h-0 flex-1 resize-none px-3 py-3 text-base leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300 sm:px-4 sm:text-sm"
               />
             </>
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-4 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
               <p className="text-sm text-zinc-500">
                 메모를 선택하거나 새 메모를 만드세요
               </p>
               <button
                 type="button"
-                onClick={createMemo}
-                className="rounded bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-800"
+                onClick={handleCreateMemo}
+                className="min-h-11 rounded-lg bg-zinc-900 px-5 py-2.5 text-sm text-white active:bg-zinc-800"
               >
                 새 메모 만들기
               </button>
