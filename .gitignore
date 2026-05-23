@@ -13,6 +13,7 @@ dist-ssr
 *.local
 supabase.md
 supabase/.temp
+.vercel
 
 # Editor directories and files
 .vscode/*
@@ -24,3 +25,4 @@ supabase/.temp
 *.njsproj
 *.sln
 *.sw?
+.vercel
