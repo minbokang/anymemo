@@ -102,8 +102,10 @@ export async function flushPendingOps(userId) {
         created_at: op.memo.created_at,
         updated_at: op.memo.updated_at,
         sort_order: op.memo.sort_order ?? 0,
+        pinned: op.memo.pinned ?? false,
       })
-      if (error) throw error
+      // 이미 서버에 있으면(다른 기기에서 반영됨) 대기열에서만 제거하고 계속
+      if (error && error.code !== '23505') throw error
     } else if (op.type === 'update') {
       const payload = {
         title: op.title,
@@ -166,4 +168,17 @@ export async function saveMemoOrder(userId, memos) {
 
 export function removeLocalMemo(memos, id) {
   return memos.filter((m) => m.id !== id)
+}
+
+/** 로컬에만 있고 서버에 없는 메모 → insert 대기열에 넣기 */
+export async function queueMissingServerMemos(userId, serverMemos, localMemos) {
+  const serverIds = new Set(serverMemos.map((m) => m.id))
+  let queued = 0
+  for (const memo of localMemos) {
+    if (!serverIds.has(memo.id)) {
+      await upsertPendingOp(userId, { type: 'insert', memo })
+      queued += 1
+    }
+  }
+  return queued
 }

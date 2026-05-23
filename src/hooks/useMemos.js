@@ -15,6 +15,7 @@ import {
   flushPendingOps,
   mergeMemos,
   moveMemoInList,
+  queueMissingServerMemos,
   removeLocalMemo,
   reorderMemos,
   saveMemoOrder,
@@ -153,7 +154,13 @@ export function useMemos(userId, { notify } = {}) {
 
     setSyncStatus('syncing')
     try {
-      await syncToServer()
+      try {
+        await syncToServer()
+      } catch (syncErr) {
+        console.error(syncErr)
+      }
+
+      let serverMemos = []
       const { data, error } = await supabase
         .from('memos')
         .select('*')
@@ -161,9 +168,30 @@ export function useMemos(userId, { notify } = {}) {
         .order('updated_at', { ascending: false })
 
       if (error) throw error
+      serverMemos = data ?? []
 
-      const localCache = await loadMemosCache(userId)
-      const merged = mergeMemos(data ?? [], localCache)
+      let localCache = await loadMemosCache(userId)
+      const queued = await queueMissingServerMemos(
+        userId,
+        serverMemos,
+        localCache,
+      )
+      if (queued > 0) {
+        pushNotice(
+          `${queued}개 메모가 서버에 없어 업로드를 시도합니다.`,
+          'info',
+        )
+        await syncToServer()
+        const refetch = await supabase
+          .from('memos')
+          .select('*')
+          .order('sort_order', { ascending: true })
+          .order('updated_at', { ascending: false })
+        if (!refetch.error) serverMemos = refetch.data ?? []
+        localCache = await loadMemosCache(userId)
+      }
+
+      const merged = mergeMemos(serverMemos, localCache)
       await persistMemos(merged)
       const pending = await loadPendingOps(userId)
       setSyncStatus(pending.length ? 'pending' : 'idle')
@@ -235,6 +263,16 @@ export function useMemos(userId, { notify } = {}) {
   useEffect(() => {
     if (!userId || !online) return
 
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void fetchMemos()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [userId, online, fetchMemos])
+
+  useEffect(() => {
+    if (!userId || !online) return
+
     const channel = supabase
       .channel(`memos:${userId}`)
       .on(
@@ -246,15 +284,9 @@ export function useMemos(userId, { notify } = {}) {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          if (pendingCountRef.current > 0) return
-
           if (payload.eventType === 'INSERT') {
             void persistMemos(
-              memosRef.current.some((m) => m.id === payload.new.id)
-                ? memosRef.current.map((m) =>
-                    m.id === payload.new.id ? payload.new : m,
-                  )
-                : [payload.new, ...memosRef.current],
+              applyLocalMemoChange(memosRef.current, payload.new),
             )
             return
           }
@@ -610,5 +642,9 @@ export function useMemos(userId, { notify } = {}) {
     updateDraft,
     refetch: fetchMemos,
     syncToServer,
+    syncNow: async () => {
+      await syncToServer()
+      return fetchMemos()
+    },
   }
 }

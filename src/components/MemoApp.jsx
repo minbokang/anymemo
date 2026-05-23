@@ -105,39 +105,49 @@ function SaveIndicator({ status, className = '' }) {
   )
 }
 
-function SyncIndicator({ online, syncStatus, pendingCount }) {
+function SyncIndicator({ online, syncStatus, pendingCount, onSync }) {
+  const badgeClass =
+    'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs'
+
+  let label = '온라인'
+  let colors =
+    'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
+
   if (!online) {
+    label = `오프라인${pendingCount > 0 ? ` · ${pendingCount}` : ''}`
+    colors = 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
+  } else if (syncStatus === 'syncing') {
+    label = '동기화 중…'
+    colors = 'bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-200'
+  } else if (syncStatus === 'pending' || pendingCount > 0) {
+    label = `대기${pendingCount > 0 ? ` ${pendingCount}` : ''}`
+    colors = 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'
+  } else if (syncStatus === 'error') {
+    label = '동기화 실패'
+    colors = 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-200'
+  }
+
+  const canTap =
+    online && onSync && syncStatus !== 'syncing'
+
+  if (!canTap) {
     return (
-      <span className="inline-flex shrink-0 items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 sm:text-xs">
-        오프라인{pendingCount > 0 ? ` · ${pendingCount}` : ''}
+      <span className={`${badgeClass} ${colors}`} role="status">
+        {label}
       </span>
     )
   }
-  if (syncStatus === 'syncing') {
-    return (
-      <span className="inline-flex shrink-0 items-center rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-800 dark:bg-sky-950 dark:text-sky-200 sm:text-xs">
-        동기화 중…
-      </span>
-    )
-  }
-  if (syncStatus === 'pending' || pendingCount > 0) {
-    return (
-      <span className="inline-flex shrink-0 items-center rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:text-xs">
-        대기{pendingCount > 0 ? ` ${pendingCount}` : ''}
-      </span>
-    )
-  }
-  if (syncStatus === 'error') {
-    return (
-      <span className="inline-flex shrink-0 items-center rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700 dark:bg-red-950 dark:text-red-200 sm:text-xs">
-        동기화 실패
-      </span>
-    )
-  }
+
   return (
-    <span className="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200 sm:text-xs">
-      온라인
-    </span>
+    <button
+      type="button"
+      onClick={onSync}
+      className={`${badgeClass} ${colors} active:opacity-80`}
+      title="탭하여 서버와 동기화"
+      aria-label={`${label}, 탭하여 동기화`}
+    >
+      {label}
+    </button>
   )
 }
 
@@ -274,6 +284,7 @@ export default function MemoApp() {
     moveMemo,
     togglePin,
     updateDraft,
+    syncNow,
   } = useMemos(user?.id, { notify: showToast })
 
   const dragIdRef = useRef(null)
@@ -345,6 +356,7 @@ export default function MemoApp() {
             online={online}
             syncStatus={syncStatus}
             pendingCount={pendingCount}
+            onSync={() => void syncNow()}
           />
           <SaveIndicator status={saveStatus} className="hidden sm:inline-flex" />
           <button
