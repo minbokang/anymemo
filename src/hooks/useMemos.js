@@ -9,9 +9,13 @@ import {
   applyLocalMemoChange,
   flushPendingOps,
   mergeMemos,
+  moveMemoInList,
   removeLocalMemo,
+  reorderMemos,
+  saveMemoOrder,
   sortMemos,
   upsertPendingOp,
+  withSortOrder,
 } from '../lib/memoSync'
 import { useOnlineStatus } from './useOnlineStatus'
 
@@ -145,6 +149,7 @@ export function useMemos(userId) {
       const { data, error } = await supabase
         .from('memos')
         .select('*')
+        .order('sort_order', { ascending: true })
         .order('updated_at', { ascending: false })
 
       if (error) throw error
@@ -268,10 +273,54 @@ export function useMemos(userId) {
     setSaveStatus('idle')
   }, [])
 
+  const applyOrder = useCallback(
+    async (nextMemos) => {
+      const ordered = withSortOrder(nextMemos)
+      setMemos(ordered)
+      if (userId) await saveMemosCache(userId, ordered)
+
+      if (!online) {
+        await upsertPendingOp(userId, { type: 'reorder', memos: ordered })
+        await refreshPendingCount()
+        setSyncStatus('pending')
+        return ordered
+      }
+
+      try {
+        await saveMemoOrder(userId, ordered)
+      } catch (err) {
+        console.error(err)
+        await upsertPendingOp(userId, { type: 'reorder', memos: ordered })
+        await refreshPendingCount()
+        setSyncStatus('pending')
+      }
+      return ordered
+    },
+    [userId, online, refreshPendingCount],
+  )
+
+  const reorderMemosByIndex = useCallback(
+    (fromIndex, toIndex) => {
+      applyOrder(reorderMemos(memosRef.current, fromIndex, toIndex))
+    },
+    [applyOrder],
+  )
+
+  const moveMemo = useCallback(
+    (id, direction) => {
+      applyOrder(moveMemoInList(memosRef.current, id, direction))
+    },
+    [applyOrder],
+  )
+
   const createMemo = useCallback(async () => {
     if (!userId) return
 
     const timestamp = nowIso()
+    const minOrder = memosRef.current.reduce(
+      (min, m) => Math.min(min, m.sort_order ?? 0),
+      0,
+    )
     const localMemo = {
       id: crypto.randomUUID(),
       user_id: userId,
@@ -279,6 +328,7 @@ export function useMemos(userId) {
       content: '',
       created_at: timestamp,
       updated_at: timestamp,
+      sort_order: minOrder - 1,
     }
 
     if (!online) {
@@ -296,6 +346,7 @@ export function useMemos(userId) {
         user_id: userId,
         title: localMemo.title,
         content: localMemo.content,
+        sort_order: localMemo.sort_order,
       })
       .select()
       .single()
@@ -326,13 +377,18 @@ export function useMemos(userId) {
         }
       }
 
+      const finalizeDelete = async (next) => {
+        const ordered = withSortOrder(next)
+        await applyOrder(ordered)
+        if (id === activeId) pickFallback(ordered)
+      }
+
       if (!online) {
         const next = removeLocalMemo(memosRef.current, id)
-        await persistMemos(next)
         await upsertPendingOp(userId, { type: 'delete', id })
         await refreshPendingCount()
         setSyncStatus('pending')
-        if (id === activeId) pickFallback(next)
+        await finalizeDelete(next)
         return
       }
 
@@ -340,19 +396,16 @@ export function useMemos(userId) {
       if (error) {
         console.error(error)
         const next = removeLocalMemo(memosRef.current, id)
-        await persistMemos(next)
         await upsertPendingOp(userId, { type: 'delete', id })
         await refreshPendingCount()
         setSyncStatus('pending')
-        if (id === activeId) pickFallback(next)
+        await finalizeDelete(next)
         return
       }
 
-      const next = removeLocalMemo(memosRef.current, id)
-      await persistMemos(next)
-      if (id === activeId) pickFallback(next)
+      await finalizeDelete(removeLocalMemo(memosRef.current, id))
     },
-    [userId, online, activeId, selectMemo, persistMemos, refreshPendingCount],
+    [userId, online, activeId, selectMemo, applyOrder, refreshPendingCount],
   )
 
   const updateDraft = useCallback((field, value) => {
@@ -450,6 +503,8 @@ export function useMemos(userId) {
     selectMemo,
     createMemo,
     deleteMemo,
+    reorderMemosByIndex,
+    moveMemo,
     updateDraft,
     refetch: fetchMemos,
     syncToServer,

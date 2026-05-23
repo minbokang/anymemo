@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useMemos } from '../hooks/useMemos'
 
@@ -70,6 +70,86 @@ function SyncIndicator({ online, syncStatus, pendingCount }) {
   )
 }
 
+function MemoListItem({
+  memo,
+  index,
+  total,
+  isActive,
+  isDragOver,
+  onSelect,
+  onMoveUp,
+  onMoveDown,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+}) {
+  return (
+    <li
+      className={`mb-1 ${isDragOver ? 'rounded-lg ring-2 ring-zinc-300' : ''}`}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      <div
+        className={`flex items-stretch overflow-hidden rounded-lg ${
+          isActive ? 'bg-zinc-100' : 'hover:bg-zinc-50'
+        }`}
+      >
+        <button
+          type="button"
+          draggable
+          onDragStart={onDragStart}
+          onClick={(e) => e.preventDefault()}
+          className="hidden shrink-0 cursor-grab touch-none items-center px-2 text-zinc-400 active:cursor-grabbing md:flex"
+          aria-label="순서 변경 드래그"
+          title="드래그하여 순서 변경"
+        >
+          ⠿
+        </button>
+        <div className="flex shrink-0 flex-col border-r border-zinc-100 md:hidden">
+          <button
+            type="button"
+            disabled={index === 0}
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveUp()
+            }}
+            className="min-h-9 flex-1 px-2 text-xs text-zinc-500 disabled:opacity-30 active:bg-zinc-100"
+            aria-label="위로"
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            disabled={index === total - 1}
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveDown()
+            }}
+            className="min-h-9 flex-1 px-2 text-xs text-zinc-500 disabled:opacity-30 active:bg-zinc-100"
+            aria-label="아래로"
+          >
+            ↓
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={onSelect}
+          className="min-h-11 min-w-0 flex-1 px-3 py-3 text-left active:bg-zinc-100"
+        >
+          <p className="truncate text-base font-medium text-zinc-800 sm:text-sm">
+            {memo.title || '제목 없음'}
+          </p>
+          <p className="mt-1 text-xs text-zinc-400">
+            {formatDate(memo.updated_at)}
+          </p>
+        </button>
+      </div>
+    </li>
+  )
+}
+
 export default function MemoApp() {
   const { user, signOut } = useAuth()
   const [mobilePane, setMobilePane] = useState('list')
@@ -85,8 +165,13 @@ export default function MemoApp() {
     selectMemo,
     createMemo,
     deleteMemo,
+    reorderMemosByIndex,
+    moveMemo,
     updateDraft,
   } = useMemos(user?.id)
+
+  const dragIdRef = useRef(null)
+  const [dragOverId, setDragOverId] = useState(null)
 
   const activeMemo = memos.find((m) => m.id === activeId)
 
@@ -151,25 +236,37 @@ export default function MemoApp() {
             {!loading && memos.length === 0 && (
               <li className="px-2 py-3 text-sm text-zinc-400">메모가 없습니다</li>
             )}
-            {memos.map((memo) => (
-              <li key={memo.id}>
-                <button
-                  type="button"
-                  onClick={() => handleSelectMemo(memo)}
-                  className={`mb-1 w-full rounded-lg px-3 py-3 text-left active:bg-zinc-100 ${
-                    memo.id === activeId
-                      ? 'bg-zinc-100 md:bg-zinc-100'
-                      : 'hover:bg-zinc-50'
-                  }`}
-                >
-                  <p className="truncate text-base font-medium text-zinc-800 sm:text-sm">
-                    {memo.title || '제목 없음'}
-                  </p>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    {formatDate(memo.updated_at)}
-                  </p>
-                </button>
-              </li>
+            {memos.map((memo, index) => (
+              <MemoListItem
+                key={memo.id}
+                memo={memo}
+                index={index}
+                total={memos.length}
+                isActive={memo.id === activeId}
+                isDragOver={dragOverId === memo.id}
+                onSelect={() => handleSelectMemo(memo)}
+                onMoveUp={() => moveMemo(memo.id, 'up')}
+                onMoveDown={() => moveMemo(memo.id, 'down')}
+                onDragStart={() => {
+                  dragIdRef.current = memo.id
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setDragOverId(memo.id)
+                }}
+                onDragLeave={() => setDragOverId(null)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  const fromIndex = memos.findIndex(
+                    (m) => m.id === dragIdRef.current,
+                  )
+                  if (fromIndex >= 0 && fromIndex !== index) {
+                    reorderMemosByIndex(fromIndex, index)
+                  }
+                  dragIdRef.current = null
+                  setDragOverId(null)
+                }}
+              />
             ))}
           </ul>
         </aside>
