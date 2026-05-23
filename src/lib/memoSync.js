@@ -8,6 +8,8 @@ import {
 
 export function sortMemos(memos) {
   return [...memos].sort((a, b) => {
+    const pinDiff = Number(b.pinned) - Number(a.pinned)
+    if (pinDiff !== 0) return pinDiff
     const orderDiff = (a.sort_order ?? 0) - (b.sort_order ?? 0)
     if (orderDiff !== 0) return orderDiff
     return new Date(b.updated_at) - new Date(a.updated_at)
@@ -103,14 +105,13 @@ export async function flushPendingOps(userId) {
       })
       if (error) throw error
     } else if (op.type === 'update') {
-      const { error } = await supabase
-        .from('memos')
-        .update({
-          title: op.title,
-          content: op.content,
-          updated_at: op.updated_at,
-        })
-        .eq('id', op.id)
+      const payload = {
+        title: op.title,
+        content: op.content,
+        updated_at: op.updated_at,
+      }
+      if (op.pinned !== undefined) payload.pinned = op.pinned
+      const { error } = await supabase.from('memos').update(payload).eq('id', op.id)
       if (error) throw error
     } else if (op.type === 'reorder') {
       await saveMemoOrder(userId, op.memos)

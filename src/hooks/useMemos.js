@@ -5,6 +5,7 @@ import {
   loadPendingOps,
   saveMemosCache,
 } from '../lib/memoCache'
+import { loadLastMemoId, saveLastMemoId } from '../lib/userPrefs'
 import {
   applyLocalMemoChange,
   flushPendingOps,
@@ -43,6 +44,7 @@ export function useMemos(userId) {
   const memosRef = useRef(memos)
   const prevOnlineRef = useRef(online)
   const pendingCountRef = useRef(0)
+  const initialSelectDoneRef = useRef(false)
 
   draftRef.current = draft
   memosRef.current = memos
@@ -129,11 +131,6 @@ export function useMemos(userId) {
     if (cached.length) {
       await persistMemos(cached)
       setLoading(false)
-      if (!activeId && cached[0]) {
-        setActiveId(cached[0].id)
-        setDraft({ title: cached[0].title, content: cached[0].content })
-        dirtyRef.current = false
-      }
     }
 
     if (!online) {
@@ -171,25 +168,37 @@ export function useMemos(userId) {
       setLoading(false)
       return cached
     }
-  }, [userId, online, activeId, persistMemos, syncToServer, refreshPendingCount])
+  }, [userId, online, persistMemos, syncToServer, refreshPendingCount])
+
+  const restoreLastMemo = useCallback(
+    (list) => {
+      if (!list?.length || initialSelectDoneRef.current) return
+      initialSelectDoneRef.current = true
+      const lastId = loadLastMemoId(userId)
+      const target =
+        (lastId && list.find((m) => m.id === lastId)) || list[0]
+      setActiveId(target.id)
+      setDraft({ title: target.title, content: target.content })
+      dirtyRef.current = false
+    },
+    [userId],
+  )
 
   useEffect(() => {
     if (!userId) return
+    initialSelectDoneRef.current = false
     let cancelled = false
 
     ;(async () => {
       const data = await fetchMemos()
-      if (cancelled || !data?.length || activeId) return
-      const first = data[0]
-      setActiveId(first.id)
-      setDraft({ title: first.title, content: first.content })
-      dirtyRef.current = false
+      if (cancelled) return
+      restoreLastMemo(data)
     })()
 
     return () => {
       cancelled = true
     }
-  }, [userId])
+  }, [userId, fetchMemos, restoreLastMemo])
 
   useEffect(() => {
     if (!userId) return
@@ -265,13 +274,62 @@ export function useMemos(userId) {
     }
   }, [userId, online, activeId, persistMemos])
 
-  const selectMemo = useCallback((memo) => {
-    clearSavedTimer()
-    setActiveId(memo.id)
-    setDraft({ title: memo.title, content: memo.content })
-    dirtyRef.current = false
-    setSaveStatus('idle')
-  }, [])
+  const selectMemo = useCallback(
+    (memo) => {
+      clearSavedTimer()
+      setActiveId(memo.id)
+      setDraft({ title: memo.title, content: memo.content })
+      dirtyRef.current = false
+      setSaveStatus('idle')
+      saveLastMemoId(userId, memo.id)
+    },
+    [userId],
+  )
+
+  const togglePin = useCallback(
+    async (id) => {
+      const memo = memosRef.current.find((m) => m.id === id)
+      if (!memo || !userId) return
+      const pinned = !memo.pinned
+      const next = sortMemos(
+        memosRef.current.map((m) => (m.id === id ? { ...m, pinned } : m)),
+      )
+      await persistMemos(next)
+
+      if (!online) {
+        await upsertPendingOp(userId, {
+          type: 'update',
+          id,
+          title: memo.title,
+          content: memo.content,
+          updated_at: memo.updated_at,
+          pinned,
+        })
+        await refreshPendingCount()
+        setSyncStatus('pending')
+        return
+      }
+
+      const { error } = await supabase
+        .from('memos')
+        .update({ pinned })
+        .eq('id', id)
+      if (error) {
+        console.error(error)
+        await upsertPendingOp(userId, {
+          type: 'update',
+          id,
+          title: memo.title,
+          content: memo.content,
+          updated_at: memo.updated_at,
+          pinned,
+        })
+        await refreshPendingCount()
+        setSyncStatus('pending')
+      }
+    },
+    [userId, online, persistMemos, refreshPendingCount],
+  )
 
   const applyOrder = useCallback(
     async (nextMemos) => {
@@ -329,6 +387,7 @@ export function useMemos(userId) {
       created_at: timestamp,
       updated_at: timestamp,
       sort_order: minOrder - 1,
+      pinned: false,
     }
 
     if (!online) {
@@ -505,6 +564,7 @@ export function useMemos(userId) {
     deleteMemo,
     reorderMemosByIndex,
     moveMemo,
+    togglePin,
     updateDraft,
     refetch: fetchMemos,
     syncToServer,

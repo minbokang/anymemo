@@ -37,32 +37,38 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom sm:p-6">
-      <h1 className="mb-1 text-xl font-medium text-zinc-900">AnyMemo</h1>
-      <p className="mb-6 text-sm text-zinc-500">
+    <div className="mx-auto w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
+      <h1 className="mb-1 text-xl font-medium text-zinc-900 dark:text-zinc-100">
+        AnyMemo
+      </h1>
+      <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
         {mode === 'signIn' ? '이메일로 로그인' : '새 계정 만들기'}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
-          <span className="mb-1 block text-sm text-zinc-600">이메일</span>
+          <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
+            이메일
+          </span>
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="min-h-11 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-500 sm:text-sm"
+            className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-400 sm:text-sm"
           />
           {mode === 'signUp' && (
-            <span className="mt-1 block text-xs text-zinc-400">
+            <span className="mt-1 block text-xs text-zinc-400 dark:text-zinc-500">
               테스트 시 Gmail 등 실제 메일 주소를 사용하세요 (test@test.com 불가)
             </span>
           )}
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm text-zinc-600">비밀번호</span>
+          <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
+            비밀번호
+          </span>
           <input
             type="password"
             required
@@ -72,17 +78,17 @@ export default function AuthForm() {
             }
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="min-h-11 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-500 sm:text-sm"
+            className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-400 sm:text-sm"
           />
         </label>
 
         {error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
         {message && (
-          <p className="text-sm text-emerald-700" role="status">
+          <p className="text-sm text-emerald-700 dark:text-emerald-400" role="status">
             {message}
           </p>
         )}
@@ -90,7 +96,7 @@ export default function AuthForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="min-h-11 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white active:bg-zinc-800 disabled:opacity-50"
+          className="min-h-11 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white active:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
         >
           {submitting
             ? '처리 중…'
@@ -107,7 +113,7 @@ export default function AuthForm() {
           setError('')
           setMessage('')
         }}
-        className="mt-4 w-full text-center text-sm text-zinc-500 hover:text-zinc-800"
+        className="mt-4 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
         {mode === 'signIn'
           ? '계정이 없으신가요? 회원가입'
