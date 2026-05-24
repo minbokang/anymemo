@@ -1,7 +1,17 @@
-const DATE_PICKER_PATTERN = /\/(?:달력|date|날짜)$/
-const RELATIVE_DATE_PATTERN = /\/(어제|오늘|내일|모레)$/
+const DATE_PICKER_PATTERN = /\/(?:달력|date|날짜|calendar)$/
+const RELATIVE_DATE_PATTERN =
+  /\/(어제|오늘|내일|모레|yesterday|today|tomorrow|dayafter)$/
 
-const RELATIVE_DAY_OFFSET = { 어제: -1, 오늘: 0, 내일: 1, 모레: 2 }
+const RELATIVE_DAY_OFFSET = {
+  어제: -1,
+  오늘: 0,
+  내일: 1,
+  모레: 2,
+  yesterday: -1,
+  today: 0,
+  tomorrow: 1,
+  dayafter: 2,
+}
 
 export function findDatePickerTrigger(text, cursorPos) {
   const before = text.slice(0, cursorPos)

@@ -1,4 +1,7 @@
+import { useTranslation } from '../context/I18nContext'
+
 export default function Toast({ toast, onDismiss }) {
+  const { t } = useTranslation()
   if (!toast) return null
 
   const styles = {
@@ -24,7 +27,7 @@ export default function Toast({ toast, onDismiss }) {
           type="button"
           onClick={onDismiss}
           className="shrink-0 rounded-md px-1 text-xs font-medium opacity-60 hover:opacity-100"
-          aria-label="닫기"
+          aria-label={t('common.close')}
         >
           ✕
         </button>

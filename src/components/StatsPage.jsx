@@ -1,3 +1,4 @@
+import { useTranslation } from '../context/I18nContext'
 import { computeMemoStats, formatCount } from '../lib/memoStats'
 import WeeklyCreatedChart from './WeeklyCreatedChart'
 
@@ -18,6 +19,7 @@ function StatCard({ label, value, hint }) {
 }
 
 export default function StatsPage({ memos, trashMemos, loading, onBack }) {
+  const { t, locale } = useTranslation()
   const stats = computeMemoStats({ memos, trashMemos })
 
   return (
@@ -28,14 +30,18 @@ export default function StatsPage({ memos, trashMemos, loading, onBack }) {
           onClick={onBack}
           className="inline-flex h-9 shrink-0 items-center rounded-lg px-2 text-sm font-medium text-zinc-600 active:bg-zinc-100 dark:text-zinc-300 dark:active:bg-zinc-800"
         >
-          ← 메모
+          {t('stats.backToMemos')}
         </button>
-        <h1 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">통계</h1>
+        <h1 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          {t('stats.title')}
+        </h1>
       </div>
 
       <div className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4">
         {loading ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">불러오는 중…</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {t('list.loading')}
+          </p>
         ) : (
           <div className="mx-auto max-w-lg space-y-6">
             <section>
@@ -44,64 +50,73 @@ export default function StatsPage({ memos, trashMemos, loading, onBack }) {
 
             <section>
               <h2 className="mb-2 text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
-                메모
+                {t('stats.sectionMemos')}
               </h2>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <StatCard label="전체" value={formatCount(stats.total)} />
-                <StatCard label="고정" value={formatCount(stats.pinned)} />
                 <StatCard
-                  label="휴지통"
-                  value={formatCount(stats.trash)}
-                  hint="삭제된 메모"
+                  label={t('stats.total')}
+                  value={formatCount(stats.total, locale)}
                 />
                 <StatCard
-                  label="제목 없음"
-                  value={formatCount(stats.untitled)}
+                  label={t('stats.pinned')}
+                  value={formatCount(stats.pinned, locale)}
+                />
+                <StatCard
+                  label={t('stats.trash')}
+                  value={formatCount(stats.trash, locale)}
+                  hint={t('stats.trashHint')}
+                />
+                <StatCard
+                  label={t('stats.untitled')}
+                  value={formatCount(stats.untitled, locale)}
                 />
               </div>
             </section>
 
             <section>
               <h2 className="mb-2 text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
-                활동
+                {t('stats.sectionActivity')}
               </h2>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <StatCard
-                  label="오늘 수정"
-                  value={formatCount(stats.updatedToday)}
-                  hint="내용·제목 변경 기준"
+                  label={t('stats.updatedToday')}
+                  value={formatCount(stats.updatedToday, locale)}
+                  hint={t('stats.updatedTodayHint')}
                 />
                 <StatCard
-                  label="7일 안 수정"
-                  value={formatCount(stats.updatedThisWeek)}
-                  hint="최근 일주일"
+                  label={t('stats.updatedThisWeek')}
+                  value={formatCount(stats.updatedThisWeek, locale)}
+                  hint={t('stats.updatedThisWeekHint')}
                 />
                 <div className="col-span-2">
-                  <StatCard label="빈 메모" value={formatCount(stats.empty)} />
+                  <StatCard
+                    label={t('stats.empty')}
+                    value={formatCount(stats.empty, locale)}
+                  />
                 </div>
               </div>
             </section>
 
             <section>
               <h2 className="mb-2 text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
-                분량
+                {t('stats.sectionVolume')}
               </h2>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <StatCard
-                  label="총 글자"
-                  value={formatCount(stats.totalChars)}
-                  hint="제목 + 본문"
+                  label={t('stats.totalChars')}
+                  value={formatCount(stats.totalChars, locale)}
+                  hint={t('stats.totalCharsHint')}
                 />
                 <StatCard
-                  label="메모당 평균"
-                  value={formatCount(stats.avgChars)}
-                  hint="글자 수"
+                  label={t('stats.avgChars')}
+                  value={formatCount(stats.avgChars, locale)}
+                  hint={t('stats.avgCharsHint')}
                 />
               </div>
             </section>
 
             <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500">
-              기기에 불러온 메모 기준 · 고정·순서 변경은 수정 수에 포함되지 않습니다
+              {t('stats.footerNote')}
             </p>
           </div>
         )}

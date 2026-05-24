@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from '../context/I18nContext'
 import { computeWeeklyCreatedSeries } from '../lib/memoStats'
 
 const BAR_MAX_HEIGHT = 120
@@ -10,9 +11,10 @@ function seriesSignature(series) {
 }
 
 export default function WeeklyCreatedChart({ memos, trashMemos }) {
+  const { t, locale } = useTranslation()
   const series = useMemo(
-    () => computeWeeklyCreatedSeries(memos, trashMemos),
-    [memos, trashMemos],
+    () => computeWeeklyCreatedSeries(memos, trashMemos, locale),
+    [memos, trashMemos, locale],
   )
   const signature = useMemo(() => seriesSignature(series), [series])
   const maxCount = Math.max(...series.map((d) => d.count), 1)
@@ -33,17 +35,14 @@ export default function WeeklyCreatedChart({ memos, trashMemos }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-              최근 7일 작성
+              {t('chart.weeklyCreatedTitle')}
             </h2>
             <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-              새 메모 · 작성일 기준
+              {t('chart.weeklyCreatedSubtitle')}
             </p>
           </div>
           <p className="shrink-0 text-xs tabular-nums text-zinc-600 dark:text-zinc-300">
-            총{' '}
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-              {weekTotal}개
-            </span>
+            {t('chart.weeklyTotal', { count: weekTotal })}
           </p>
         </div>
       </div>
@@ -51,7 +50,7 @@ export default function WeeklyCreatedChart({ memos, trashMemos }) {
       <div
         className={`chart-week px-4 pt-4 pb-4 sm:px-5 ${animate ? 'chart-week--animate' : ''}`}
         role="img"
-        aria-label={`최근 7일 작성 그래프, 합계 ${weekTotal}개`}
+        aria-label={t('chart.weeklyAria', { count: weekTotal })}
       >
         <div
           className="relative overflow-visible"
@@ -71,14 +70,23 @@ export default function WeeklyCreatedChart({ memos, trashMemos }) {
                     )
               const delay = `${index * STAGGER_MS}ms`
               const countDelay = `${index * STAGGER_MS + 280}ms`
+              const tooltip =
+                day.count > 0
+                  ? t('chart.barTooltip', {
+                      date: day.label,
+                      weekday: day.weekday,
+                      count: day.count,
+                    })
+                  : t('chart.barTooltipNoCount', {
+                      date: day.label,
+                      weekday: day.weekday,
+                    })
 
               return (
                 <div
                   key={day.key}
                   className="flex h-full items-end justify-center"
-                  title={`${day.label} (${day.weekday})${
-                    day.count > 0 ? `: ${day.count}개` : ''
-                  }`}
+                  title={tooltip}
                 >
                   {day.count > 0 && (
                     <div
@@ -127,7 +135,7 @@ export default function WeeklyCreatedChart({ memos, trashMemos }) {
                     : 'text-zinc-500 dark:text-zinc-400'
                 }`}
               >
-                {day.isToday ? '오늘' : day.weekday}
+                {day.isToday ? t('chart.today') : day.weekday}
               </span>
               {!day.isToday && (
                 <span className="mt-0.5 block text-[10px] tabular-nums text-zinc-400 dark:text-zinc-500">

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from '../context/I18nContext'
 import {
   formatMemoDate,
   fromDateInputValue,
@@ -11,6 +12,7 @@ import {
 } from '../lib/slashDateTrigger'
 
 export default function MemoContentTextarea({ value, onChange, className }) {
+  const { t } = useTranslation()
   const textareaRef = useRef(null)
   const valueRef = useRef(value)
   const pickerRangeRef = useRef(null)
@@ -134,7 +136,7 @@ export default function MemoContentTextarea({ value, onChange, className }) {
         value={value}
         onChange={handleChange}
         onClick={handleTextareaClick}
-        placeholder="내용을 입력하세요…"
+        placeholder={t('memo.contentPlaceholder')}
         className={className}
       />
       {pickerOpen && (
@@ -142,18 +144,18 @@ export default function MemoContentTextarea({ value, onChange, className }) {
           <button
             type="button"
             tabIndex={-1}
-            aria-label="날짜 선택 닫기"
+            aria-label={t('datePicker.closeAria')}
             className="absolute inset-0 z-10 bg-zinc-900/10 dark:bg-black/20"
             onClick={() => closePicker(true)}
           />
           <div
             className="absolute top-3 left-3 z-20 flex max-w-[calc(100%-1.5rem)] flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
             role="dialog"
-            aria-label="날짜 선택"
+            aria-label={t('datePicker.title')}
             onPointerDown={(e) => e.stopPropagation()}
           >
             <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
-              날짜 선택
+              {t('datePicker.title')}
             </span>
             <input
               type="date"
@@ -168,14 +170,14 @@ export default function MemoContentTextarea({ value, onChange, className }) {
                 onClick={confirmDate}
                 className="min-h-9 flex-1 rounded-md bg-zinc-900 px-3 text-xs font-medium text-white active:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
               >
-                삽입
+                {t('datePicker.insert')}
               </button>
               <button
                 type="button"
                 onClick={() => closePicker(true)}
                 className="min-h-9 rounded-md border border-zinc-300 px-3 text-xs text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-700"
               >
-                취소
+                {t('common.cancel')}
               </button>
             </div>
           </div>

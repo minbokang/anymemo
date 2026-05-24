@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from '../context/I18nContext'
 import { formatAuthError } from '../lib/authErrors'
 import { getRememberMe, loadRememberedEmail } from '../lib/authStorage'
+import LanguageToggle from './LanguageToggle'
 
 export default function AuthForm() {
   const { signIn, signUp, resetPassword } = useAuth()
+  const { t, locale } = useTranslation()
   const [mode, setMode] = useState('signIn')
   const [email, setEmail] = useState(() =>
     getRememberMe() ? loadRememberedEmail() : '',
@@ -32,22 +35,22 @@ export default function AuthForm() {
     try {
       if (mode === 'reset') {
         await resetPassword(email)
-        setMessage('비밀번호 재설정 링크를 이메일로 보냈습니다.')
+        setMessage(t('auth.resetSent'))
         return
       }
       if (mode === 'signUp') {
         const { user } = await signUp(email, password)
         if (user && !user.confirmed_at) {
-          setMessage('가입 완료. 이메일 확인 링크를 보냈습니다. (확인 비활성화 시 바로 로그인됩니다)')
+          setMessage(t('auth.signUpConfirm'))
         } else {
-          setMessage('가입 및 로그인되었습니다.')
+          setMessage(t('auth.signUpSuccess'))
         }
       } else {
         await signIn(email, password, { rememberMe })
-        setMessage('로그인되었습니다.')
+        setMessage(t('auth.signInSuccess'))
       }
     } catch (err) {
-      setError(formatAuthError(err))
+      setError(formatAuthError(err, locale))
     } finally {
       setSubmitting(false)
     }
@@ -55,19 +58,22 @@ export default function AuthForm() {
 
   return (
     <div className="mx-auto w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
-      <h1 className="mb-1 text-xl font-medium text-zinc-900 dark:text-zinc-100">
-        AnyMemo
-      </h1>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <h1 className="text-xl font-medium text-zinc-900 dark:text-zinc-100">
+          AnyMemo
+        </h1>
+        <LanguageToggle />
+      </div>
       <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-        {mode === 'signIn' && '이메일로 로그인'}
-        {mode === 'signUp' && '새 계정 만들기'}
-        {mode === 'reset' && '비밀번호 재설정 링크 받기'}
+        {mode === 'signIn' && t('auth.subtitleSignIn')}
+        {mode === 'signUp' && t('auth.subtitleSignUp')}
+        {mode === 'reset' && t('auth.subtitleReset')}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
-            이메일
+            {t('auth.email')}
           </span>
           <input
             type="email"
@@ -79,7 +85,7 @@ export default function AuthForm() {
           />
           {mode === 'signUp' && (
             <span className="mt-1 block text-xs text-zinc-400 dark:text-zinc-500">
-              테스트 시 Gmail 등 실제 메일 주소를 사용하세요 (test@test.com 불가)
+              {t('auth.emailSignUpHint')}
             </span>
           )}
         </label>
@@ -87,7 +93,7 @@ export default function AuthForm() {
         {mode !== 'reset' && (
           <label className="block">
             <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
-              비밀번호
+              {t('auth.password')}
             </span>
             <div className="relative">
               <input
@@ -105,9 +111,13 @@ export default function AuthForm() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute top-1/2 right-2 min-h-9 -translate-y-1/2 rounded-md px-2 text-xs text-zinc-500 active:bg-zinc-100 dark:text-zinc-400 dark:active:bg-zinc-800"
-                aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                aria-label={
+                  showPassword
+                    ? t('auth.hidePasswordAria')
+                    : t('auth.showPasswordAria')
+                }
               >
-                {showPassword ? '숨기기' : '보기'}
+                {showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               </button>
             </div>
           </label>
@@ -122,7 +132,7 @@ export default function AuthForm() {
               className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400 dark:border-zinc-600"
             />
             <span className="text-sm text-zinc-600 dark:text-zinc-400">
-              로그인 상태 유지 (이메일 기억)
+              {t('auth.rememberMe')}
             </span>
           </label>
         )}
@@ -144,12 +154,12 @@ export default function AuthForm() {
           className="min-h-11 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white active:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
         >
           {submitting
-            ? '처리 중…'
+            ? t('auth.processing')
             : mode === 'signIn'
-              ? '로그인'
+              ? t('auth.signIn')
               : mode === 'signUp'
-                ? '회원가입'
-                : '링크 보내기'}
+                ? t('auth.signUp')
+                : t('auth.sendLink')}
         </button>
       </form>
 
@@ -163,7 +173,7 @@ export default function AuthForm() {
           }}
           className="mt-3 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
-          비밀번호를 잊으셨나요?
+          {t('auth.forgotPassword')}
         </button>
       )}
 
@@ -178,8 +188,8 @@ export default function AuthForm() {
           className="mt-3 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
           {mode === 'signIn'
-            ? '계정이 없으신가요? 회원가입'
-            : '이미 계정이 있으신가요? 로그인'}
+            ? t('auth.switchToSignUp')
+            : t('auth.switchToSignIn')}
         </button>
       ) : (
         <button
@@ -191,7 +201,7 @@ export default function AuthForm() {
           }}
           className="mt-3 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
-          로그인으로 돌아가기
+          {t('auth.backToSignIn')}
         </button>
       )}
     </div>

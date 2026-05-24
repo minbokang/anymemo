@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from '../context/I18nContext'
 import { useTheme } from '../context/ThemeContext'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useMemos } from '../hooks/useMemos'
@@ -54,28 +55,29 @@ function IconMoon({ className = 'h-4 w-4' }) {
 }
 
 function SaveIndicator({ status, className = '' }) {
+  const { t } = useTranslation()
   const config = {
     pending: {
-      label: '입력 대기',
+      label: t('save.pending'),
       className:
         'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
     },
     saving: {
-      label: '저장 중…',
+      label: t('save.saving'),
       className: 'bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-200',
     },
     saved: {
-      label: '저장됨',
+      label: t('save.saved'),
       className:
         'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200',
     },
     local: {
-      label: '로컬 저장',
+      label: t('save.local'),
       className:
         'bg-violet-50 text-violet-800 dark:bg-violet-950 dark:text-violet-200',
     },
     error: {
-      label: '저장 실패',
+      label: t('save.error'),
       className: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-200',
     },
   }[status]
@@ -94,24 +96,31 @@ function SaveIndicator({ status, className = '' }) {
 }
 
 function SyncIndicator({ online, syncStatus, pendingCount, onSync }) {
+  const { t } = useTranslation()
   const badgeClass =
     'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs'
 
-  let label = '서버 동기화됨'
+  let label = t('sync.synced')
   let colors =
     'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
 
   if (!online) {
-    label = `오프라인${pendingCount > 0 ? ` · ${pendingCount}` : ''}`
+    label =
+      pendingCount > 0
+        ? t('sync.offlineWithCount', { count: pendingCount })
+        : t('sync.offline')
     colors = 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
   } else if (syncStatus === 'syncing') {
-    label = '동기화 중…'
+    label = t('sync.syncing')
     colors = 'bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-200'
   } else if (syncStatus === 'pending' || pendingCount > 0) {
-    label = `대기${pendingCount > 0 ? ` ${pendingCount}` : ''}`
+    label =
+      pendingCount > 0
+        ? t('sync.pendingWithCount', { count: pendingCount })
+        : t('sync.pending')
     colors = 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'
   } else if (syncStatus === 'error') {
-    label = '동기화 실패'
+    label = t('sync.error')
     colors = 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-200'
   }
 
@@ -131,8 +140,8 @@ function SyncIndicator({ online, syncStatus, pendingCount, onSync }) {
       type="button"
       onClick={onSync}
       className={`${badgeClass} ${colors} active:opacity-80`}
-      title="탭하여 서버와 동기화"
-      aria-label={`${label}, 탭하여 동기화`}
+      title={t('sync.tapToSync')}
+      aria-label={t('sync.tapToSyncAria', { label })}
     >
       {label}
     </button>
@@ -158,7 +167,9 @@ function MemoListItem({
   onDrop,
 }) {
   void timeTick
+  const { t, locale } = useTranslation()
   const preview = memoPreview(memo.content)
+  const displayTitle = memo.title?.trim() || t('common.untitled')
   return (
     <li
       className={`mb-1 ${isDragOver ? 'rounded-lg ring-2 ring-zinc-300 dark:ring-zinc-600' : ''}`}
@@ -181,8 +192,8 @@ function MemoListItem({
           className={`hidden shrink-0 touch-none items-center px-2 text-zinc-400 md:flex ${
             searchActive ? 'cursor-default opacity-30' : 'cursor-grab active:cursor-grabbing'
           }`}
-          aria-label="순서 변경 드래그"
-          title={searchActive ? '검색 중 순서 변경 불가' : '드래그하여 순서 변경'}
+          aria-label={t('reorder.dragAria')}
+          title={searchActive ? t('reorder.dragDisabled') : t('reorder.dragHint')}
         >
           ⠿
         </button>
@@ -195,7 +206,7 @@ function MemoListItem({
               onMoveUp()
             }}
             className="min-h-9 flex-1 px-2 text-xs text-zinc-500 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-400 dark:active:bg-zinc-700"
-            aria-label="위로"
+            aria-label={t('reorder.moveUp')}
           >
             ↑
           </button>
@@ -207,7 +218,7 @@ function MemoListItem({
               onMoveDown()
             }}
             className="min-h-9 flex-1 px-2 text-xs text-zinc-500 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-400 dark:active:bg-zinc-700"
-            aria-label="아래로"
+            aria-label={t('reorder.moveDown')}
           >
             ↓
           </button>
@@ -219,7 +230,7 @@ function MemoListItem({
         >
           <p className="truncate text-base font-medium text-zinc-800 dark:text-zinc-100 sm:text-sm">
             <HighlightText
-              text={memo.title || '제목 없음'}
+              text={displayTitle}
               query={searchQuery}
             />
           </p>
@@ -229,7 +240,7 @@ function MemoListItem({
             </p>
           )}
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            {formatRelativeTime(memo.updated_at)}
+            {formatRelativeTime(memo.updated_at, locale)}
           </p>
         </button>
         <button
@@ -238,13 +249,9 @@ function MemoListItem({
             e.stopPropagation()
             onTogglePin()
           }}
-          className={`flex min-h-11 w-11 shrink-0 items-center justify-center active:bg-zinc-100 dark:active:bg-zinc-700 ${
-            memo.pinned
-              ? 'bg-amber-50/50 dark:bg-amber-950/30'
-              : ''
-          }`}
-          aria-label={memo.pinned ? '고정 해제' : '상단 고정'}
-          title={memo.pinned ? '고정 해제' : '상단 고정'}
+          className="flex min-h-11 w-11 shrink-0 items-center justify-center active:bg-zinc-100 dark:active:bg-zinc-700"
+          aria-label={memo.pinned ? t('pin.unpin') : t('pin.pin')}
+          title={memo.pinned ? t('pin.unpin') : t('pin.pin')}
         >
           <IconPin
             pinned={memo.pinned}
@@ -258,6 +265,7 @@ function MemoListItem({
 
 export default function MemoApp() {
   const { user, signOut } = useAuth()
+  const { t, locale } = useTranslation()
   const { isDark, toggleTheme } = useTheme()
   const [mobilePane, setMobilePane] = useState('list')
   const [searchQuery, setSearchQuery] = useState('')
@@ -388,8 +396,8 @@ export default function MemoApp() {
             onClick={() => void syncNow()}
             disabled={!online || refreshing}
             className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 disabled:opacity-40 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
-            title="전체 새로고침"
-            aria-label="전체 새로고침"
+            title={t('sync.refreshAll')}
+            aria-label={t('sync.refreshAll')}
           >
             <span className={refreshing ? 'animate-spin' : ''}>↻</span>
           </button>
@@ -402,8 +410,12 @@ export default function MemoApp() {
                 ? 'border-zinc-400 bg-zinc-100 text-zinc-900 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-100'
                 : 'border-zinc-300 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400'
             }`}
-            aria-label={appView === 'stats' ? '메모로 돌아가기' : '통계'}
-            title={appView === 'stats' ? '메모' : '통계'}
+            aria-label={
+              appView === 'stats' ? t('nav.backToMemos') : t('nav.stats')
+            }
+            title={
+              appView === 'stats' ? t('nav.memosTitle') : t('nav.statsTitle')
+            }
             aria-current={appView === 'stats' ? 'page' : undefined}
           >
             <IconChart />
@@ -412,8 +424,8 @@ export default function MemoApp() {
             type="button"
             onClick={toggleTheme}
             className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
-            aria-label={isDark ? '라이트 모드' : '다크 모드'}
-            title={isDark ? '라이트 모드' : '다크 모드'}
+            aria-label={isDark ? t('theme.lightMode') : t('theme.darkMode')}
+            title={isDark ? t('theme.lightMode') : t('theme.darkMode')}
           >
             {isDark ? <IconSun /> : <IconMoon />}
           </button>
@@ -422,7 +434,7 @@ export default function MemoApp() {
             onClick={() => signOut()}
             className="min-h-9 shrink-0 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs text-zinc-700 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:active:bg-zinc-800 sm:px-3"
           >
-            로그아웃
+            {t('auth.signOut')}
           </button>
         </div>
       </header>
@@ -448,7 +460,7 @@ export default function MemoApp() {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="메모 검색…"
+                placeholder={t('search.placeholder')}
                 className="min-h-10 w-full rounded-lg border border-zinc-300 bg-white py-2 pr-9 pl-3 text-base outline-none placeholder:text-zinc-400 focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-400 sm:text-sm"
               />
               {!searchQuery && (
@@ -466,7 +478,7 @@ export default function MemoApp() {
                 onClick={handleCreateMemo}
                 className="min-h-11 w-full rounded-lg bg-zinc-900 px-3 py-2.5 text-sm font-medium text-white active:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
               >
-                + 새 메모
+                {t('memo.new')}
               </button>
             )}
             <button
@@ -482,25 +494,27 @@ export default function MemoApp() {
               }`}
             >
               {showTrash
-                ? '← 메모 목록'
-                : `휴지통${trashMemos.length > 0 ? ` (${trashMemos.length})` : ''}`}
+                ? t('trash.backToList')
+                : trashMemos.length > 0
+                  ? t('trash.toggleWithCount', { count: trashMemos.length })
+                  : t('trash.toggle')}
             </button>
           </div>
 
           <ul className="flex-1 overflow-y-auto overscroll-contain p-2 sm:p-3">
             {loading && (
               <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
-                불러오는 중…
+                {t('list.loading')}
               </li>
             )}
             {!loading && !showTrash && memos.length === 0 && (
               <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
-                메모가 없습니다
+                {t('list.empty')}
               </li>
             )}
             {!loading && showTrash && trashMemos.length === 0 && (
               <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
-                휴지통이 비었습니다
+                {t('trash.empty')}
               </li>
             )}
             {!loading &&
@@ -508,7 +522,7 @@ export default function MemoApp() {
               memos.length > 0 &&
               filteredMemos.length === 0 && (
               <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
-                검색 결과 없음
+                {t('list.noResults')}
               </li>
             )}
             {showTrash &&
@@ -518,10 +532,11 @@ export default function MemoApp() {
                   className="mb-1 rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
                 >
                   <p className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                    {memo.title || '제목 없음'}
+                    {memo.title?.trim() || t('common.untitled')}
                   </p>
                   <p className="mt-1 text-xs text-zinc-400">
-                    삭제 {formatRelativeTime(memo.deleted_at)}
+                    {t('trash.deletedPrefix')}{' '}
+                    {formatRelativeTime(memo.deleted_at, locale)}
                   </p>
                   <div className="mt-2 flex gap-2">
                     <button
@@ -529,22 +544,18 @@ export default function MemoApp() {
                       onClick={() => void restoreMemo(memo.id)}
                       className="rounded-md border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-600"
                     >
-                      복원
+                      {t('trash.restore')}
                     </button>
                     <button
                       type="button"
                       onClick={() => {
-                        if (
-                          window.confirm(
-                            '영구 삭제하면 복구할 수 없습니다. 계속할까요?',
-                          )
-                        ) {
+                        if (window.confirm(t('trash.permanentDeleteConfirm'))) {
                           void permanentDeleteMemo(memo.id)
                         }
                       }}
                       className="rounded-md border border-red-200 px-2 py-1 text-xs text-red-600 dark:border-red-900 dark:text-red-400"
                     >
-                      영구 삭제
+                      {t('trash.permanentDelete')}
                     </button>
                   </div>
                 </li>
@@ -588,10 +599,8 @@ export default function MemoApp() {
               />
             ))}
           </ul>
-          <p className="panel-footer hidden px-3 text-[10px] leading-none text-zinc-400 dark:text-zinc-500 md:flex">
-            {showTrash
-              ? '7일 후 자동 삭제 · Esc 목록'
-              : '⌘N 새 메모 · / 검색 · Esc 검색 지우기'}
+          <p className="panel-footer hidden w-full items-center px-3 text-[10px] leading-none text-zinc-400 safe-bottom dark:text-zinc-500 md:flex">
+            {showTrash ? t('trash.footerHint') : t('list.footerHint')}
           </p>
         </aside>
 
@@ -608,9 +617,9 @@ export default function MemoApp() {
                   type="button"
                   onClick={() => setMobilePane('list')}
                   className="inline-flex h-8 shrink-0 items-center rounded-lg px-2 text-sm font-medium leading-none text-zinc-600 active:bg-zinc-100 dark:text-zinc-300 dark:active:bg-zinc-800"
-                  aria-label="목록으로"
+                  aria-label={t('list.backToListAria')}
                 >
-                  ← 목록
+                  {t('list.backToList')}
                 </button>
                 <SaveIndicator status={saveStatus} className="ml-auto sm:hidden" />
               </div>
@@ -618,7 +627,7 @@ export default function MemoApp() {
                 type="text"
                 value={draft.title}
                 onChange={(e) => updateDraft('title', e.target.value)}
-                placeholder="제목"
+                placeholder={t('memo.titlePlaceholder')}
                 className="border-b border-zinc-100 bg-white px-3 py-3 text-lg font-medium text-zinc-900 outline-none placeholder:text-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4"
               />
               <MemoContentTextarea
@@ -628,8 +637,8 @@ export default function MemoApp() {
               />
               <MemoEditorFooter
                 pinned={activeMemo.pinned}
-                onDownload={() => exportMemo(activeMemo, 'md')}
-                onDownloadAll={() => exportAllMemos(memos, 'md')}
+                onDownload={() => exportMemo(activeMemo, 'md', locale)}
+                onDownloadAll={() => exportAllMemos(memos, 'md', locale)}
                 onTogglePin={() => togglePin(activeMemo.id)}
                 onDelete={() => handleDeleteMemo(activeMemo)}
               />
@@ -637,14 +646,14 @@ export default function MemoApp() {
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                메모를 선택하거나 새 메모를 만드세요
+                {t('memo.emptyState')}
               </p>
               <button
                 type="button"
                 onClick={handleCreateMemo}
                 className="min-h-11 rounded-lg bg-zinc-900 px-5 py-2.5 text-sm text-white active:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
               >
-                새 메모 만들기
+                {t('memo.createNew')}
               </button>
             </div>
           )}
@@ -654,14 +663,16 @@ export default function MemoApp() {
 
       <ConfirmDialog
         open={memoToDelete != null}
-        title="메모를 삭제할까요?"
+        title={t('delete.title')}
         description={
           memoToDelete
-            ? `「${memoToDelete.title?.trim() || '제목 없음'}」을(를) 휴지통으로 옮깁니다. 7일 후 자동 삭제됩니다.`
+            ? t('delete.description', {
+                title: memoToDelete.title?.trim() || t('common.untitled'),
+              })
             : ''
         }
-        confirmLabel="삭제"
-        cancelLabel="취소"
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
         confirming={deleting}
         onConfirm={() => void confirmDeleteMemo()}
         onCancel={() => {

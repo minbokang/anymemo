@@ -1,4 +1,9 @@
+import { getUntitledTitles } from '../i18n/translate'
+import { localeToBcp47 } from '../i18n/translate'
+import { loadLocale } from './userPrefs'
+
 const DAY_MS = 24 * 60 * 60 * 1000
+const UNTITLED_TITLES = new Set(getUntitledTitles())
 
 function textLength(memo) {
   return (memo.title?.length ?? 0) + (memo.content?.length ?? 0)
@@ -6,7 +11,7 @@ function textLength(memo) {
 
 function isUntitled(memo) {
   const t = memo.title?.trim()
-  return !t || t === '제목 없음'
+  return !t || UNTITLED_TITLES.has(t)
 }
 
 function isEmpty(memo) {
@@ -64,8 +69,8 @@ export function computeMemoStats({ memos, trashMemos }) {
   }
 }
 
-export function formatCount(n) {
-  return n.toLocaleString('ko-KR')
+export function formatCount(n, locale = loadLocale()) {
+  return n.toLocaleString(localeToBcp47(locale))
 }
 
 function startOfLocalDay(date) {
@@ -81,14 +86,21 @@ function localDayKey(date) {
   return `${y}-${m}-${d}`
 }
 
-const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토']
+function weekdayShort(date, locale) {
+  return date.toLocaleDateString(localeToBcp47(locale), { weekday: 'short' })
+}
 
 /**
  * 최근 7일(오늘 포함) 일별 새 메모 작성 수. 작성 없는 날은 count 0.
  * @param {object[]} memos
  * @param {object[]} [trashMemos]
+ * @param {string} [locale]
  */
-export function computeWeeklyCreatedSeries(memos, trashMemos = []) {
+export function computeWeeklyCreatedSeries(
+  memos,
+  trashMemos = [],
+  locale = loadLocale(),
+) {
   const today = startOfLocalDay(new Date())
   const todayKey = localDayKey(today)
   const days = []
@@ -102,7 +114,7 @@ export function computeWeeklyCreatedSeries(memos, trashMemos = []) {
       date,
       count: 0,
       label: `${date.getMonth() + 1}/${date.getDate()}`,
-      weekday: WEEKDAY_KO[date.getDay()],
+      weekday: weekdayShort(date, locale),
       isToday: key === todayKey,
     })
   }

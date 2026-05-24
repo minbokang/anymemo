@@ -39,6 +39,6 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
 
 export function pinIconClass(pinned) {
   return pinned
-    ? 'text-amber-600 dark:text-amber-500'
+    ? 'text-red-600 dark:text-red-500'
     : 'text-zinc-500 dark:text-zinc-400'
 }

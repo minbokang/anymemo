@@ -1,15 +1,19 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from '../context/I18nContext'
 
 export default function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = '삭제',
-  cancelLabel = '취소',
+  confirmLabel,
+  cancelLabel,
   confirming = false,
   onConfirm,
   onCancel,
 }) {
+  const { t } = useTranslation()
+  const resolvedConfirm = confirmLabel ?? t('common.delete')
+  const resolvedCancel = cancelLabel ?? t('common.cancel')
   const cancelRef = useRef(null)
 
   useEffect(() => {
@@ -47,7 +51,7 @@ export default function ConfirmDialog({
           confirming ? 'pointer-events-none' : ''
         }`}
         onClick={onCancel}
-        aria-label="닫기"
+        aria-label={t('common.close')}
         tabIndex={confirming ? -1 : 0}
       />
       <div className="relative w-full max-w-sm rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900 sm:shadow-xl">
@@ -94,7 +98,7 @@ export default function ConfirmDialog({
             disabled={confirming}
             className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 active:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:active:bg-zinc-800"
           >
-            {cancelLabel}
+            {resolvedCancel}
           </button>
           <button
             type="button"
@@ -102,7 +106,7 @@ export default function ConfirmDialog({
             disabled={confirming}
             className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-red-600 text-sm font-medium text-white active:bg-red-700 disabled:opacity-70 dark:bg-red-600 dark:active:bg-red-500"
           >
-            {confirming ? '삭제 중…' : confirmLabel}
+            {confirming ? t('common.deleting') : resolvedConfirm}
           </button>
         </div>
       </div>

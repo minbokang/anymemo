@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from '../context/I18nContext'
 import { supabase } from '../supabaseClient'
 import {
   loadMemosCache,
@@ -34,6 +35,7 @@ function nowIso() {
 }
 
 export function useMemos(userId, { notify } = {}) {
+  const { t } = useTranslation()
   const online = useOnlineStatus()
   const notifyRef = useRef(notify)
   notifyRef.current = notify
@@ -130,12 +132,12 @@ export function useMemos(userId, { notify } = {}) {
     } catch (err) {
       console.error(err)
       setSyncStatus('error')
-      pushNotice('동기화에 실패했습니다. 나중에 다시 시도됩니다.')
+      pushNotice(t('toast.syncFailed'))
       return null
     } finally {
       syncingRef.current = false
     }
-  }, [userId, online, persistMemos, refreshPendingCount, pushNotice])
+  }, [userId, online, persistMemos, refreshPendingCount, pushNotice, t])
 
   const pullServerMemos = useCallback(async () => {
     const { data, error } = await supabase
@@ -191,10 +193,7 @@ export function useMemos(userId, { notify } = {}) {
         localCache,
       )
       if (queued > 0) {
-        pushNotice(
-          `${queued}개 메모가 서버에 없어 업로드를 시도합니다.`,
-          'info',
-        )
+        pushNotice(t('toast.uploadQueued', { count: queued }), 'info')
       }
 
       try {
@@ -227,10 +226,10 @@ export function useMemos(userId, { notify } = {}) {
       if (cached.length) {
         await persistMemos(cached)
         setSyncStatus('offline')
-        pushNotice('서버 목록을 불러오지 못했습니다. 저장된 메모를 표시합니다.')
+        pushNotice(t('toast.serverListFailed'))
       } else {
         setSyncStatus('error')
-        pushNotice('메모 목록을 불러오지 못했습니다.')
+        pushNotice(t('toast.listLoadFailed'))
       }
       setLoading(false)
       return cached
@@ -244,6 +243,7 @@ export function useMemos(userId, { notify } = {}) {
     pushNotice,
     pullServerMemos,
     pullTrashMemos,
+    t,
   ])
 
   const restoreLastMemo = useCallback(
@@ -347,10 +347,7 @@ export function useMemos(userId, { notify } = {}) {
               local &&
               new Date(remote.updated_at) > new Date(local.updated_at)
             ) {
-              pushNotice(
-                '다른 기기에서 이 메모가 수정되었습니다. 새로고침하면 반영됩니다.',
-                'info',
-              )
+              pushNotice(t('toast.remoteEditConflict'), 'info')
             }
 
             void persistMemos(
@@ -388,7 +385,7 @@ export function useMemos(userId, { notify } = {}) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [userId, online, activeId, persistMemos, pushNotice])
+  }, [userId, online, activeId, persistMemos, pushNotice, t])
 
   const selectMemo = useCallback(
     (memo) => {
@@ -498,7 +495,7 @@ export function useMemos(userId, { notify } = {}) {
     const localMemo = {
       id: crypto.randomUUID(),
       user_id: userId,
-      title: '제목 없음',
+      title: t('common.untitled'),
       content: '',
       created_at: timestamp,
       updated_at: timestamp,
@@ -538,7 +535,7 @@ export function useMemos(userId, { notify } = {}) {
 
     await persistMemos(applyLocalMemoChange(memosRef.current, data))
     selectMemo(data)
-  }, [userId, online, persistMemos, selectMemo, refreshPendingCount])
+  }, [userId, online, persistMemos, selectMemo, refreshPendingCount, t])
 
   const deleteMemo = useCallback(
     async (id) => {
@@ -586,7 +583,7 @@ export function useMemos(userId, { notify } = {}) {
         .single()
       if (error) {
         console.error(error)
-        pushNotice('삭제에 실패했습니다. 연결되면 다시 시도합니다.')
+        pushNotice(t('toast.deleteFailed'))
         const next = removeLocalMemo(memosRef.current, id)
         await upsertPendingOp(userId, { type: 'delete', id })
         await refreshPendingCount()
@@ -606,6 +603,7 @@ export function useMemos(userId, { notify } = {}) {
       applyOrder,
       refreshPendingCount,
       pushNotice,
+      t,
     ],
   )
 
@@ -620,14 +618,14 @@ export function useMemos(userId, { notify } = {}) {
         .single()
       if (error) {
         console.error(error)
-        pushNotice('복원에 실패했습니다.')
+        pushNotice(t('toast.restoreFailed'))
         return
       }
       setTrashMemos((prev) => prev.filter((m) => m.id !== id))
       await persistMemos(applyLocalMemoChange(memosRef.current, data))
       selectMemo(data)
     },
-    [userId, persistMemos, selectMemo, pushNotice],
+    [userId, persistMemos, selectMemo, pushNotice, t],
   )
 
   const permanentDeleteMemo = useCallback(
@@ -636,12 +634,12 @@ export function useMemos(userId, { notify } = {}) {
       const { error } = await supabase.from('memos').delete().eq('id', id)
       if (error) {
         console.error(error)
-        pushNotice('영구 삭제에 실패했습니다.')
+        pushNotice(t('toast.permanentDeleteFailed'))
         return
       }
       setTrashMemos((prev) => prev.filter((m) => m.id !== id))
     },
-    [userId, pushNotice],
+    [userId, pushNotice, t],
   )
 
   const updateDraft = useCallback((field, value) => {
@@ -705,7 +703,7 @@ export function useMemos(userId, { notify } = {}) {
       if (error) {
         console.error(error)
         setSaveStatus('error')
-        pushNotice('저장에 실패했습니다. 기기에 임시 저장했습니다.')
+        pushNotice(t('toast.saveFailed'))
         await applyLocal()
         return
       }
@@ -726,6 +724,7 @@ export function useMemos(userId, { notify } = {}) {
     showLocalSaved,
     refreshPendingCount,
     pushNotice,
+    t,
   ])
 
   useEffect(() => () => clearSavedTimer(), [])

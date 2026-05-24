@@ -1,5 +1,28 @@
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../i18n/translate'
+
 const lastMemoKey = (userId) => `anymemo:lastMemo:${userId}`
 const APP_VIEW_KEY = 'anymemo:app-view'
+const LOCALE_KEY = 'anymemo:locale'
+
+export function loadLocale() {
+  try {
+    const stored = localStorage.getItem(LOCALE_KEY)
+    if (stored && SUPPORTED_LOCALES.includes(stored)) return stored
+  } catch {
+    /* ignore */
+  }
+  const lang = typeof navigator !== 'undefined' ? navigator.language : ''
+  return lang.toLowerCase().startsWith('en') ? 'en' : DEFAULT_LOCALE
+}
+
+export function saveLocale(locale) {
+  if (!SUPPORTED_LOCALES.includes(locale)) return
+  try {
+    localStorage.setItem(LOCALE_KEY, locale)
+  } catch {
+    /* ignore */
+  }
+}
 
 export function loadAppView() {
   try {
