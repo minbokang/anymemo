@@ -236,10 +236,10 @@ function MemoListItem({
             e.stopPropagation()
             onTogglePin()
           }}
-          className={`flex min-h-11 w-11 shrink-0 items-center justify-center border-l active:bg-zinc-100 dark:active:bg-zinc-700 ${
+          className={`flex min-h-11 w-11 shrink-0 items-center justify-center active:bg-zinc-100 dark:active:bg-zinc-700 ${
             memo.pinned
-              ? 'border-amber-200/80 bg-amber-50/50 dark:border-amber-900/50 dark:bg-amber-950/30'
-              : 'border-zinc-100 dark:border-zinc-700'
+              ? 'bg-amber-50/50 dark:bg-amber-950/30'
+              : ''
           }`}
           aria-label={memo.pinned ? '고정 해제' : '상단 고정'}
           title={memo.pinned ? '고정 해제' : '상단 고정'}
@@ -362,7 +362,7 @@ export default function MemoApp() {
           <span className="shrink-0 text-sm font-medium text-zinc-900 dark:text-zinc-100">
             AnyMemo
           </span>
-          <span className="min-w-0 max-w-[100px] truncate text-xs text-zinc-500 dark:text-zinc-400 sm:max-w-[200px] md:max-w-[280px]">
+          <span className="hidden min-w-0 max-w-[200px] truncate text-xs text-zinc-500 md:inline md:max-w-[280px] dark:text-zinc-400">
             {user.email}
           </span>
         </div>

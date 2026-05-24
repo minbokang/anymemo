@@ -7,7 +7,7 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
         r={pinned ? 4.5 : 4}
         fill={pinned ? 'currentColor' : 'none'}
         stroke="currentColor"
-        strokeWidth={pinned ? 0 : 2}
+        strokeWidth={pinned ? 0 : 0.5}
       />
     </svg>
   )
