@@ -50,3 +50,91 @@ body {
     font-size: 16px;
   }
 }
+
+/* 통계 — 주간 작성 막대 */
+.chart-week-baseline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-zinc-300) 70%, transparent) 12%,
+    color-mix(in srgb, var(--color-zinc-300) 70%, transparent) 88%,
+    transparent
+  );
+}
+
+:where(.dark, .dark *) .chart-week-baseline {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-zinc-600) 80%, transparent) 12%,
+    color-mix(in srgb, var(--color-zinc-600) 80%, transparent) 88%,
+    transparent
+  );
+}
+
+.chart-bar {
+  width: 0.625rem;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(to top, #52525b 0%, #a1a1aa 100%);
+  box-shadow: 0 4px 12px rgb(24 24 27 / 0.15);
+  transform-origin: bottom center;
+  transform: scaleY(0);
+  transition: transform 0.55s cubic-bezier(0.33, 1, 0.68, 1);
+  transition-delay: var(--bar-delay, 0ms);
+  will-change: transform;
+}
+
+.chart-week--animate .chart-bar {
+  transform: scaleY(1);
+}
+
+@media (min-width: 640px) {
+  .chart-bar {
+    width: 0.75rem;
+    border-radius: 8px 8px 3px 3px;
+  }
+}
+
+:where(.dark, .dark *) .chart-bar {
+  background: linear-gradient(to top, #3f3f46 0%, #d4d4d8 100%);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.35);
+}
+
+.chart-bar--today {
+  background: linear-gradient(to top, #0369a1 0%, #38bdf8 100%);
+  box-shadow: 0 4px 16px rgb(14 165 233 / 0.45);
+}
+
+:where(.dark, .dark *) .chart-bar--today {
+  background: linear-gradient(to top, #0284c7 0%, #7dd3fc 100%);
+  box-shadow: 0 4px 18px rgb(56 189 248 / 0.5);
+}
+
+.chart-bar-count {
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+  transition-delay: var(--count-delay, 0ms);
+}
+
+.chart-week--animate .chart-bar-count {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chart-week:not(.chart-week--animate) .chart-bar-count {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-bar {
+    transform: scaleY(1);
+    transition: none;
+  }
+
+  .chart-bar-count {
+    transition: none;
+  }
+}

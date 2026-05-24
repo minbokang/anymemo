@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
@@ -8,12 +8,14 @@ import { useToast } from '../hooks/useToast'
 import { exportAllMemos, exportMemo } from '../lib/exportMemos'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { memoPreview } from '../lib/memoPreview'
+import { loadAppView, saveAppView } from '../lib/userPrefs'
 import ConfirmDialog from './ConfirmDialog'
 import HighlightText from './HighlightText'
 import InstallPrompt from './InstallPrompt'
 import MemoContentTextarea from './MemoContentTextarea'
 import MemoEditorFooter from './MemoEditorFooter'
-import { IconPin, pinIconClass } from './memoIcons'
+import { IconChart, IconPin, pinIconClass } from './memoIcons'
+import StatsPage from './StatsPage'
 import Toast from './Toast'
 
 function IconSun({ className = 'h-4 w-4' }) {
@@ -262,6 +264,14 @@ export default function MemoApp() {
   const [memoToDelete, setMemoToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
+  const [appView, setAppViewState] = useState(loadAppView)
+  const setAppView = useCallback((next) => {
+    setAppViewState((prev) => {
+      const value = typeof next === 'function' ? next(prev) : next
+      saveAppView(value)
+      return value
+    })
+  }, [])
   const searchInputRef = useRef(null)
   const timeTick = useRelativeTimeTick()
   const { toast, showToast, dismissToast } = useToast()
@@ -386,6 +396,20 @@ export default function MemoApp() {
           <SaveIndicator status={saveStatus} className="hidden sm:inline-flex" />
           <button
             type="button"
+            onClick={() => setAppView((v) => (v === 'stats' ? 'memos' : 'stats'))}
+            className={`flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border active:bg-zinc-100 dark:active:bg-zinc-800 ${
+              appView === 'stats'
+                ? 'border-zinc-400 bg-zinc-100 text-zinc-900 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-100'
+                : 'border-zinc-300 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400'
+            }`}
+            aria-label={appView === 'stats' ? '메모로 돌아가기' : '통계'}
+            title={appView === 'stats' ? '메모' : '통계'}
+            aria-current={appView === 'stats' ? 'page' : undefined}
+          >
+            <IconChart />
+          </button>
+          <button
+            type="button"
             onClick={toggleTheme}
             className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
             aria-label={isDark ? '라이트 모드' : '다크 모드'}
@@ -403,6 +427,14 @@ export default function MemoApp() {
         </div>
       </header>
 
+      {appView === 'stats' ? (
+        <StatsPage
+          memos={memos}
+          trashMemos={trashMemos}
+          loading={loading}
+          onBack={() => setAppView('memos')}
+        />
+      ) : (
       <div className="flex min-h-0 flex-1">
         <aside
           className={`flex w-full flex-col border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 md:w-64 md:shrink-0 md:border-r lg:w-72 ${
@@ -618,6 +650,7 @@ export default function MemoApp() {
           )}
         </section>
       </div>
+      )}
 
       <ConfirmDialog
         open={memoToDelete != null}
