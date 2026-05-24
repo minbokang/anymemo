@@ -1,5 +1,11 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import {
+  clearRememberedEmail,
+  clearSupabaseAuthFromLocalStorage,
+  saveRememberedEmail,
+  setRememberMe,
+} from '../lib/authStorage'
 import { clearUserCache } from '../lib/memoCache'
 
 const AuthContext = createContext(null)
@@ -30,7 +36,15 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const signIn = async (email, password) => {
+  const signIn = async (email, password, { rememberMe = true } = {}) => {
+    setRememberMe(rememberMe)
+    if (!rememberMe) {
+      clearSupabaseAuthFromLocalStorage()
+      clearRememberedEmail()
+    } else {
+      saveRememberedEmail(email)
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,

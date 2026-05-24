@@ -11,6 +11,9 @@ import { memoPreview } from '../lib/memoPreview'
 import ConfirmDialog from './ConfirmDialog'
 import HighlightText from './HighlightText'
 import InstallPrompt from './InstallPrompt'
+import MemoContentTextarea from './MemoContentTextarea'
+import MemoEditorFooter from './MemoEditorFooter'
+import { IconPin, pinIconClass } from './memoIcons'
 import Toast from './Toast'
 
 function IconSun({ className = 'h-4 w-4' }) {
@@ -46,27 +49,6 @@ function IconMoon({ className = 'h-4 w-4' }) {
       />
     </svg>
   )
-}
-
-function IconPin({ pinned, className = 'h-4 w-4' }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="none" aria-hidden>
-      <circle
-        cx="10"
-        cy="10"
-        r={pinned ? 4.5 : 4}
-        fill={pinned ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth={pinned ? 0 : 2}
-      />
-    </svg>
-  )
-}
-
-function pinIconClass(pinned) {
-  return pinned
-    ? 'text-amber-600 dark:text-amber-500'
-    : 'text-zinc-500 dark:text-zinc-400'
 }
 
 function SaveIndicator({ status, className = '' }) {
@@ -376,9 +358,14 @@ export default function MemoApp() {
     <div className="flex h-svh flex-col bg-zinc-50 supports-[height:100dvh]:h-dvh dark:bg-zinc-950">
       <InstallPrompt />
       <header className="flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-white px-3 py-2 safe-top dark:border-zinc-800 dark:bg-zinc-900 sm:px-4 sm:py-2.5">
-        <span className="shrink-0 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-          AnyMemo
-        </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="shrink-0 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            AnyMemo
+          </span>
+          <span className="min-w-0 max-w-[100px] truncate text-xs text-zinc-500 dark:text-zinc-400 sm:max-w-[200px] md:max-w-[280px]">
+            {user.email}
+          </span>
+        </div>
         <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
           <SyncIndicator
             online={online}
@@ -406,9 +393,6 @@ export default function MemoApp() {
           >
             {isDark ? <IconSun /> : <IconMoon />}
           </button>
-          <span className="hidden max-w-[140px] truncate text-xs text-zinc-500 dark:text-zinc-400 md:inline">
-            {user.email}
-          </span>
           <button
             type="button"
             onClick={() => signOut()}
@@ -426,14 +410,24 @@ export default function MemoApp() {
           }`}
         >
           <div className="space-y-2 border-b border-zinc-100 p-2 dark:border-zinc-800 sm:p-3">
-            <input
-              ref={searchInputRef}
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="메모 검색… (/ 키)"
-              className="min-h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base outline-none placeholder:text-zinc-400 focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-400 sm:text-sm"
-            />
+            <div className="relative">
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="메모 검색…"
+                className="min-h-10 w-full rounded-lg border border-zinc-300 bg-white py-2 pr-9 pl-3 text-base outline-none placeholder:text-zinc-400 focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-400 sm:text-sm"
+              />
+              {!searchQuery && (
+                <kbd
+                  className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 font-mono text-[11px] leading-none text-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-500"
+                  aria-hidden
+                >
+                  /
+                </kbd>
+              )}
+            </div>
             {!showTrash && (
               <button
                 type="button"
@@ -595,52 +589,18 @@ export default function MemoApp() {
                 placeholder="제목"
                 className="border-b border-zinc-100 bg-white px-3 py-3 text-lg font-medium text-zinc-900 outline-none placeholder:text-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4"
               />
-              <textarea
+              <MemoContentTextarea
                 value={draft.content}
-                onChange={(e) => updateDraft('content', e.target.value)}
-                placeholder="내용을 입력하세요…"
+                onChange={(content) => updateDraft('content', content)}
                 className="min-h-0 flex-1 resize-none bg-white px-3 py-3 text-base leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4 sm:text-sm"
               />
-              <div className="panel-footer flex flex-wrap items-center justify-end gap-1 bg-white px-3 py-2 safe-bottom dark:bg-zinc-900 sm:px-4 md:py-0">
-                <button
-                  type="button"
-                  onClick={() => exportMemo(activeMemo, 'md')}
-                  className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
-                >
-                 보내기
-                </button>
-                <button
-                  type="button"
-                  onClick={() => exportAllMemos(memos, 'md')}
-                  className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
-                >
-                  전체
-                </button>
-                <button
-                  type="button"
-                  onClick={() => togglePin(activeMemo.id)}
-                  aria-label={activeMemo.pinned ? '고정 해제' : '상단 고정'}
-                  title={activeMemo.pinned ? '고정 해제' : '상단 고정'}
-                  className={`inline-flex h-7 min-w-[3.5rem] items-center justify-center gap-1 rounded-md border px-2 text-[11px] font-medium leading-none whitespace-nowrap active:bg-zinc-50 dark:active:bg-zinc-800 ${
-                    activeMemo.pinned
-                      ? 'border-amber-200 bg-amber-50/80 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-400'
-                      : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
-                  }`}
-                >
-                  <IconPin
-                    pinned={activeMemo.pinned}
-                    className={`h-3 w-3 shrink-0 ${pinIconClass(activeMemo.pinned)}`}
-                  />
-                  {activeMemo.pinned ? '고정됨' : '고정'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteMemo(activeMemo)}
-                  className="inline-flex h-7 items-center justify-center rounded-md border border-red-200 px-2.5 text-[11px] font-medium leading-none whitespace-nowrap text-red-600 active:bg-red-50 dark:border-red-900/70 dark:text-red-400 dark:active:bg-red-950/80"
-                >
-                  삭제
-                </button>
-              </div>
+              <MemoEditorFooter
+                pinned={activeMemo.pinned}
+                onDownload={() => exportMemo(activeMemo, 'md')}
+                onDownloadAll={() => exportAllMemos(memos, 'md')}
+                onTogglePin={() => togglePin(activeMemo.id)}
+                onDelete={() => handleDeleteMemo(activeMemo)}
+              />
             </>
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">

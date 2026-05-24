@@ -1,15 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { formatAuthError } from '../lib/authErrors'
+import { getRememberMe, loadRememberedEmail } from '../lib/authStorage'
 
 export default function AuthForm() {
   const { signIn, signUp, resetPassword } = useAuth()
   const [mode, setMode] = useState('signIn')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() =>
+    getRememberMe() ? loadRememberedEmail() : '',
+  )
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(getRememberMe)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (mode === 'signIn' && rememberMe) {
+      const saved = loadRememberedEmail()
+      if (saved) setEmail(saved)
+    }
+  }, [mode, rememberMe])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -31,7 +43,7 @@ export default function AuthForm() {
           setMessage('가입 및 로그인되었습니다.')
         }
       } else {
-        await signIn(email, password)
+        await signIn(email, password, { rememberMe })
         setMessage('로그인되었습니다.')
       }
     } catch (err) {
@@ -77,17 +89,41 @@ export default function AuthForm() {
             <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
               비밀번호
             </span>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                autoComplete={
+                  mode === 'signIn' ? 'current-password' : 'new-password'
+                }
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white py-2.5 pr-12 pl-3 text-base outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-400 sm:text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute top-1/2 right-2 min-h-9 -translate-y-1/2 rounded-md px-2 text-xs text-zinc-500 active:bg-zinc-100 dark:text-zinc-400 dark:active:bg-zinc-800"
+                aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+              >
+                {showPassword ? '숨기기' : '보기'}
+              </button>
+            </div>
+          </label>
+        )}
+
+        {mode === 'signIn' && (
+          <label className="flex cursor-pointer items-center gap-2">
             <input
-              type="password"
-              required
-              minLength={6}
-              autoComplete={
-                mode === 'signIn' ? 'current-password' : 'new-password'
-              }
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-400 sm:text-sm"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400 dark:border-zinc-600"
             />
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              로그인 상태 유지 (이메일 기억)
+            </span>
           </label>
         )}
 
