@@ -107,7 +107,6 @@ async function applyPendingOp(userId, op) {
     const payload = {
       title: op.title,
       content: op.content,
-      updated_at: op.updated_at,
     }
     if (op.pinned !== undefined) payload.pinned = op.pinned
     const { error } = await supabase.from('memos').update(payload).eq('id', op.id)
