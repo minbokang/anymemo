@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons.svg'],
+      includeAssets: ['favicon.svg'],
       manifest: {
         name: 'AnyMemo',
         short_name: 'AnyMemo',
@@ -23,13 +23,13 @@ export default defineConfig({
         icons: [
           {
             src: 'favicon.svg',
-            sizes: '192x192',
+            sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any',
           },
           {
             src: 'favicon.svg',
-            sizes: '512x512',
+            sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'maskable',
           },

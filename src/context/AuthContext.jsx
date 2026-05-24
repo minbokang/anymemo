@@ -46,6 +46,13 @@ export function AuthProvider({ children }) {
     if (uid) await clearUserCache(uid)
   }
 
+  const resetPassword = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/`,
+    })
+    if (error) throw error
+  }
+
   const value = useMemo(
     () => ({
       session,
@@ -54,6 +61,7 @@ export function AuthProvider({ children }) {
       signUp,
       signIn,
       signOut,
+      resetPassword,
     }),
     [session, loading],
   )

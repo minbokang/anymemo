@@ -20,6 +20,7 @@ import {
   reorderMemos,
   saveMemoOrder,
   sortMemos,
+  purgeExpiredTrash,
   upsertPendingOp,
   withSortOrder,
 } from '../lib/memoSync'
@@ -47,6 +48,8 @@ export function useMemos(userId, { notify } = {}) {
   const [saveStatus, setSaveStatus] = useState('idle')
   const [syncStatus, setSyncStatus] = useState('idle')
   const [pendingCount, setPendingCount] = useState(0)
+  const [trashMemos, setTrashMemos] = useState([])
+  const [refreshing, setRefreshing] = useState(false)
   const dirtyRef = useRef(false)
   const skipNextSaveRef = useRef(false)
   const draftRef = useRef(draft)
@@ -138,11 +141,23 @@ export function useMemos(userId, { notify } = {}) {
     const { data, error } = await supabase
       .from('memos')
       .select('*')
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true })
       .order('updated_at', { ascending: false })
     if (error) throw error
     return data ?? []
   }, [])
+
+  const pullTrashMemos = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('memos')
+      .select('*')
+      .eq('user_id', userId)
+      .not('deleted_at', 'is', null)
+      .order('deleted_at', { ascending: false })
+    if (error) throw error
+    return data ?? []
+  }, [userId])
 
   const fetchMemos = useCallback(async () => {
     if (!userId) return
@@ -161,7 +176,12 @@ export function useMemos(userId, { notify } = {}) {
     setLoading(true)
     setSyncStatus('syncing')
     try {
-      // 온라인: 서버 목록을 먼저 받고, 대기 작업(삭제는 마지막) 반영
+      try {
+        await purgeExpiredTrash(userId)
+      } catch (purgeErr) {
+        console.error(purgeErr)
+      }
+
       let serverMemos = await pullServerMemos()
       let localCache = await loadMemosCache(userId)
 
@@ -191,6 +211,14 @@ export function useMemos(userId, { notify } = {}) {
         : sortMemos(serverMemos)
 
       await persistMemos(merged)
+      if (online) {
+        try {
+          const trash = await pullTrashMemos()
+          setTrashMemos(trash)
+        } catch (trashErr) {
+          console.error(trashErr)
+        }
+      }
       setSyncStatus(pending.length ? 'pending' : 'idle')
       setLoading(false)
       return merged
@@ -215,6 +243,7 @@ export function useMemos(userId, { notify } = {}) {
     refreshPendingCount,
     pushNotice,
     pullServerMemos,
+    pullTrashMemos,
   ])
 
   const restoreLastMemo = useCallback(
@@ -291,16 +320,49 @@ export function useMemos(userId, { notify } = {}) {
           }
 
           if (payload.eventType === 'UPDATE') {
+            const remote = payload.new
+            if (remote.deleted_at) {
+              void persistMemos(
+                removeLocalMemo(memosRef.current, remote.id),
+              )
+              setTrashMemos((prev) => {
+                const exists = prev.some((m) => m.id === remote.id)
+                if (exists) {
+                  return prev.map((m) => (m.id === remote.id ? remote : m))
+                }
+                return [remote, ...prev]
+              })
+              if (remote.id === activeId) {
+                setActiveId(null)
+                setDraft({ title: '', content: '' })
+                dirtyRef.current = false
+              }
+              return
+            }
+
+            const local = memosRef.current.find((m) => m.id === remote.id)
+            if (
+              remote.id === activeId &&
+              dirtyRef.current &&
+              local &&
+              new Date(remote.updated_at) > new Date(local.updated_at)
+            ) {
+              pushNotice(
+                '다른 기기에서 이 메모가 수정되었습니다. 새로고침하면 반영됩니다.',
+                'info',
+              )
+            }
+
             void persistMemos(
               memosRef.current.map((m) =>
-                m.id === payload.new.id ? payload.new : m,
+                m.id === remote.id ? remote : m,
               ),
             )
-            if (payload.new.id === activeId && !dirtyRef.current) {
+            if (remote.id === activeId && !dirtyRef.current) {
               skipNextSaveRef.current = true
               setDraft({
-                title: payload.new.title,
-                content: payload.new.content,
+                title: remote.title,
+                content: remote.content,
               })
             }
             return
@@ -309,6 +371,9 @@ export function useMemos(userId, { notify } = {}) {
           if (payload.eventType === 'DELETE') {
             void persistMemos(
               removeLocalMemo(memosRef.current, payload.old.id),
+            )
+            setTrashMemos((prev) =>
+              prev.filter((m) => m.id !== payload.old.id),
             )
             if (payload.old.id === activeId) {
               setActiveId(null)
@@ -323,7 +388,7 @@ export function useMemos(userId, { notify } = {}) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [userId, online, activeId, persistMemos])
+  }, [userId, online, activeId, persistMemos, pushNotice])
 
   const selectMemo = useCallback(
     (memo) => {
@@ -512,7 +577,13 @@ export function useMemos(userId, { notify } = {}) {
         return
       }
 
-      const { error } = await supabase.from('memos').delete().eq('id', id)
+      const deletedAt = nowIso()
+      const { data, error } = await supabase
+        .from('memos')
+        .update({ deleted_at: deletedAt })
+        .eq('id', id)
+        .select()
+        .single()
       if (error) {
         console.error(error)
         pushNotice('삭제에 실패했습니다. 연결되면 다시 시도합니다.')
@@ -524,6 +595,7 @@ export function useMemos(userId, { notify } = {}) {
         return
       }
 
+      setTrashMemos((prev) => [data, ...prev.filter((m) => m.id !== id)])
       await finalizeDelete(removeLocalMemo(memosRef.current, id))
     },
     [
@@ -535,6 +607,41 @@ export function useMemos(userId, { notify } = {}) {
       refreshPendingCount,
       pushNotice,
     ],
+  )
+
+  const restoreMemo = useCallback(
+    async (id) => {
+      if (!userId) return
+      const { data, error } = await supabase
+        .from('memos')
+        .update({ deleted_at: null })
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) {
+        console.error(error)
+        pushNotice('복원에 실패했습니다.')
+        return
+      }
+      setTrashMemos((prev) => prev.filter((m) => m.id !== id))
+      await persistMemos(applyLocalMemoChange(memosRef.current, data))
+      selectMemo(data)
+    },
+    [userId, persistMemos, selectMemo, pushNotice],
+  )
+
+  const permanentDeleteMemo = useCallback(
+    async (id) => {
+      if (!userId) return
+      const { error } = await supabase.from('memos').delete().eq('id', id)
+      if (error) {
+        console.error(error)
+        pushNotice('영구 삭제에 실패했습니다.')
+        return
+      }
+      setTrashMemos((prev) => prev.filter((m) => m.id !== id))
+    },
+    [userId, pushNotice],
   )
 
   const updateDraft = useCallback((field, value) => {
@@ -623,11 +730,24 @@ export function useMemos(userId, { notify } = {}) {
 
   useEffect(() => () => clearSavedTimer(), [])
 
+  const syncNow = useCallback(async () => {
+    if (!userId || !online) return null
+    setRefreshing(true)
+    try {
+      await syncToServer()
+      return await fetchMemos()
+    } finally {
+      setRefreshing(false)
+    }
+  }, [userId, online, syncToServer, fetchMemos])
+
   return {
     memos,
+    trashMemos,
     activeId,
     draft,
     loading,
+    refreshing,
     saveStatus,
     syncStatus,
     online,
@@ -635,15 +755,14 @@ export function useMemos(userId, { notify } = {}) {
     selectMemo,
     createMemo,
     deleteMemo,
+    restoreMemo,
+    permanentDeleteMemo,
     reorderMemosByIndex,
     moveMemo,
     togglePin,
     updateDraft,
     refetch: fetchMemos,
     syncToServer,
-    syncNow: async () => {
-      await syncToServer()
-      return fetchMemos()
-    },
+    syncNow,
   }
 }

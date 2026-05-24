@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { formatAuthError } from '../lib/authErrors'
 
 export default function AuthForm() {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, resetPassword } = useAuth()
   const [mode, setMode] = useState('signIn')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,6 +18,11 @@ export default function AuthForm() {
     setSubmitting(true)
 
     try {
+      if (mode === 'reset') {
+        await resetPassword(email)
+        setMessage('비밀번호 재설정 링크를 이메일로 보냈습니다.')
+        return
+      }
       if (mode === 'signUp') {
         const { user } = await signUp(email, password)
         if (user && !user.confirmed_at) {
@@ -42,7 +47,9 @@ export default function AuthForm() {
         AnyMemo
       </h1>
       <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-        {mode === 'signIn' ? '이메일로 로그인' : '새 계정 만들기'}
+        {mode === 'signIn' && '이메일로 로그인'}
+        {mode === 'signUp' && '새 계정 만들기'}
+        {mode === 'reset' && '비밀번호 재설정 링크 받기'}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -65,22 +72,24 @@ export default function AuthForm() {
           )}
         </label>
 
-        <label className="block">
-          <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
-            비밀번호
-          </span>
-          <input
-            type="password"
-            required
-            minLength={6}
-            autoComplete={
-              mode === 'signIn' ? 'current-password' : 'new-password'
-            }
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-400 sm:text-sm"
-          />
-        </label>
+        {mode !== 'reset' && (
+          <label className="block">
+            <span className="mb-1 block text-sm text-zinc-600 dark:text-zinc-400">
+              비밀번호
+            </span>
+            <input
+              type="password"
+              required
+              minLength={6}
+              autoComplete={
+                mode === 'signIn' ? 'current-password' : 'new-password'
+              }
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-zinc-400 sm:text-sm"
+            />
+          </label>
+        )}
 
         {error && (
           <p className="text-sm text-red-600 dark:text-red-400" role="alert">
@@ -102,23 +111,53 @@ export default function AuthForm() {
             ? '처리 중…'
             : mode === 'signIn'
               ? '로그인'
-              : '회원가입'}
+              : mode === 'signUp'
+                ? '회원가입'
+                : '링크 보내기'}
         </button>
       </form>
 
-      <button
-        type="button"
-        onClick={() => {
-          setMode(mode === 'signIn' ? 'signUp' : 'signIn')
-          setError('')
-          setMessage('')
-        }}
-        className="mt-4 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-      >
-        {mode === 'signIn'
-          ? '계정이 없으신가요? 회원가입'
-          : '이미 계정이 있으신가요? 로그인'}
-      </button>
+      {mode === 'signIn' && (
+        <button
+          type="button"
+          onClick={() => {
+            setMode('reset')
+            setError('')
+            setMessage('')
+          }}
+          className="mt-3 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          비밀번호를 잊으셨나요?
+        </button>
+      )}
+
+      {mode !== 'reset' ? (
+        <button
+          type="button"
+          onClick={() => {
+            setMode(mode === 'signIn' ? 'signUp' : 'signIn')
+            setError('')
+            setMessage('')
+          }}
+          className="mt-3 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          {mode === 'signIn'
+            ? '계정이 없으신가요? 회원가입'
+            : '이미 계정이 있으신가요? 로그인'}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setMode('signIn')
+            setError('')
+            setMessage('')
+          }}
+          className="mt-3 w-full text-center text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          로그인으로 돌아가기
+        </button>
+      )}
     </div>
   )
 }

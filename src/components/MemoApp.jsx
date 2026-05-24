@@ -5,8 +5,12 @@ import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useMemos } from '../hooks/useMemos'
 import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick'
 import { useToast } from '../hooks/useToast'
+import { exportAllMemos, exportMemo } from '../lib/exportMemos'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
+import { memoPreview } from '../lib/memoPreview'
 import ConfirmDialog from './ConfirmDialog'
+import HighlightText from './HighlightText'
+import InstallPrompt from './InstallPrompt'
 import Toast from './Toast'
 
 function IconSun({ className = 'h-4 w-4' }) {
@@ -109,7 +113,7 @@ function SyncIndicator({ online, syncStatus, pendingCount, onSync }) {
   const badgeClass =
     'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium sm:text-xs'
 
-  let label = '온라인'
+  let label = '서버 동기화됨'
   let colors =
     'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
 
@@ -158,6 +162,7 @@ function MemoListItem({
   isActive,
   isDragOver,
   searchActive,
+  searchQuery,
   timeTick,
   onSelect,
   onTogglePin,
@@ -169,6 +174,7 @@ function MemoListItem({
   onDrop,
 }) {
   void timeTick
+  const preview = memoPreview(memo.content)
   return (
     <li
       className={`mb-1 ${isDragOver ? 'rounded-lg ring-2 ring-zinc-300 dark:ring-zinc-600' : ''}`}
@@ -228,8 +234,16 @@ function MemoListItem({
           className="min-h-11 min-w-0 flex-1 px-3 py-3 text-left active:bg-zinc-100 dark:active:bg-zinc-700"
         >
           <p className="truncate text-base font-medium text-zinc-800 dark:text-zinc-100 sm:text-sm">
-            {memo.title || '제목 없음'}
+            <HighlightText
+              text={memo.title || '제목 없음'}
+              query={searchQuery}
+            />
           </p>
+          {preview && (
+            <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+              <HighlightText text={preview} query={searchQuery} />
+            </p>
+          )}
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
             {formatRelativeTime(memo.updated_at)}
           </p>
@@ -265,14 +279,17 @@ export default function MemoApp() {
   const [searchQuery, setSearchQuery] = useState('')
   const [memoToDelete, setMemoToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [showTrash, setShowTrash] = useState(false)
   const searchInputRef = useRef(null)
   const timeTick = useRelativeTimeTick()
   const { toast, showToast, dismissToast } = useToast()
   const {
     memos,
+    trashMemos,
     activeId,
     draft,
     loading,
+    refreshing,
     saveStatus,
     syncStatus,
     online,
@@ -280,6 +297,8 @@ export default function MemoApp() {
     selectMemo,
     createMemo,
     deleteMemo,
+    restoreMemo,
+    permanentDeleteMemo,
     reorderMemosByIndex,
     moveMemo,
     togglePin,
@@ -334,8 +353,16 @@ export default function MemoApp() {
     onNewMemo: () => void handleCreateMemo(),
     onFocusSearch: () => searchInputRef.current?.focus(),
     onEscape: () => {
+      if (searchQuery.trim()) {
+        setSearchQuery('')
+        return
+      }
       if (memoToDelete && !deleting) {
         setMemoToDelete(null)
+        return
+      }
+      if (showTrash) {
+        setShowTrash(false)
         return
       }
       setMobilePane('list')
@@ -347,6 +374,7 @@ export default function MemoApp() {
 
   return (
     <div className="flex h-svh flex-col bg-zinc-50 supports-[height:100dvh]:h-dvh dark:bg-zinc-950">
+      <InstallPrompt />
       <header className="flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-white px-3 py-2 safe-top dark:border-zinc-800 dark:bg-zinc-900 sm:px-4 sm:py-2.5">
         <span className="shrink-0 text-sm font-medium text-zinc-900 dark:text-zinc-100">
           AnyMemo
@@ -358,6 +386,16 @@ export default function MemoApp() {
             pendingCount={pendingCount}
             onSync={() => void syncNow()}
           />
+          <button
+            type="button"
+            onClick={() => void syncNow()}
+            disabled={!online || refreshing}
+            className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 disabled:opacity-40 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
+            title="전체 새로고침"
+            aria-label="전체 새로고침"
+          >
+            <span className={refreshing ? 'animate-spin' : ''}>↻</span>
+          </button>
           <SaveIndicator status={saveStatus} className="hidden sm:inline-flex" />
           <button
             type="button"
@@ -396,12 +434,30 @@ export default function MemoApp() {
               placeholder="메모 검색… (/ 키)"
               className="min-h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-base outline-none placeholder:text-zinc-400 focus:border-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-400 sm:text-sm"
             />
+            {!showTrash && (
+              <button
+                type="button"
+                onClick={handleCreateMemo}
+                className="min-h-11 w-full rounded-lg bg-zinc-900 px-3 py-2.5 text-sm font-medium text-white active:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
+              >
+                + 새 메모
+              </button>
+            )}
             <button
               type="button"
-              onClick={handleCreateMemo}
-              className="min-h-11 w-full rounded-lg bg-zinc-900 px-3 py-2.5 text-sm font-medium text-white active:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:active:bg-zinc-200"
+              onClick={() => {
+                setShowTrash((v) => !v)
+                setMobilePane('list')
+              }}
+              className={`min-h-9 w-full rounded-lg border px-3 py-2 text-xs font-medium ${
+                showTrash
+                  ? 'border-zinc-400 bg-zinc-100 text-zinc-800 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200'
+                  : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
+              }`}
             >
-              + 새 메모
+              {showTrash
+                ? '← 메모 목록'
+                : `휴지통${trashMemos.length > 0 ? ` (${trashMemos.length})` : ''}`}
             </button>
           </div>
 
@@ -411,17 +467,64 @@ export default function MemoApp() {
                 불러오는 중…
               </li>
             )}
-            {!loading && memos.length === 0 && (
+            {!loading && !showTrash && memos.length === 0 && (
               <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
                 메모가 없습니다
               </li>
             )}
-            {!loading && memos.length > 0 && filteredMemos.length === 0 && (
+            {!loading && showTrash && trashMemos.length === 0 && (
+              <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
+                휴지통이 비었습니다
+              </li>
+            )}
+            {!loading &&
+              !showTrash &&
+              memos.length > 0 &&
+              filteredMemos.length === 0 && (
               <li className="px-2 py-3 text-sm text-zinc-400 dark:text-zinc-500">
                 검색 결과 없음
               </li>
             )}
-            {filteredMemos.map((memo, index) => (
+            {showTrash &&
+              trashMemos.map((memo) => (
+                <li
+                  key={memo.id}
+                  className="mb-1 rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
+                >
+                  <p className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                    {memo.title || '제목 없음'}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-400">
+                    삭제 {formatRelativeTime(memo.deleted_at)}
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void restoreMemo(memo.id)}
+                      className="rounded-md border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-600"
+                    >
+                      복원
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            '영구 삭제하면 복구할 수 없습니다. 계속할까요?',
+                          )
+                        ) {
+                          void permanentDeleteMemo(memo.id)
+                        }
+                      }}
+                      className="rounded-md border border-red-200 px-2 py-1 text-xs text-red-600 dark:border-red-900 dark:text-red-400"
+                    >
+                      영구 삭제
+                    </button>
+                  </div>
+                </li>
+              ))}
+            {!showTrash &&
+              filteredMemos.map((memo, index) => (
               <MemoListItem
                 key={memo.id}
                 memo={memo}
@@ -430,6 +533,7 @@ export default function MemoApp() {
                 isActive={memo.id === activeId}
                 isDragOver={dragOverId === memo.id}
                 searchActive={searchActive}
+                searchQuery={searchQuery}
                 timeTick={timeTick}
                 onSelect={() => handleSelectMemo(memo)}
                 onTogglePin={() => togglePin(memo.id)}
@@ -459,7 +563,9 @@ export default function MemoApp() {
             ))}
           </ul>
           <p className="panel-footer hidden px-3 text-[10px] leading-none text-zinc-400 dark:text-zinc-500 md:flex">
-            ⌘N 새 메모 · / 검색 · Esc 목록
+            {showTrash
+              ? '7일 후 자동 삭제 · Esc 목록'
+              : '⌘N 새 메모 · / 검색 · Esc 검색 지우기'}
           </p>
         </aside>
 
@@ -495,7 +601,21 @@ export default function MemoApp() {
                 placeholder="내용을 입력하세요…"
                 className="min-h-0 flex-1 resize-none bg-white px-3 py-3 text-base leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4 sm:text-sm"
               />
-              <div className="panel-footer flex items-center justify-end gap-1 bg-white px-3 py-2 safe-bottom dark:bg-zinc-900 sm:px-4 md:py-0">
+              <div className="panel-footer flex flex-wrap items-center justify-end gap-1 bg-white px-3 py-2 safe-bottom dark:bg-zinc-900 sm:px-4 md:py-0">
+                <button
+                  type="button"
+                  onClick={() => exportMemo(activeMemo, 'md')}
+                  className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
+                >
+                 보내기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportAllMemos(memos, 'md')}
+                  className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
+                >
+                  전체
+                </button>
                 <button
                   type="button"
                   onClick={() => togglePin(activeMemo.id)}
@@ -544,7 +664,7 @@ export default function MemoApp() {
         title="메모를 삭제할까요?"
         description={
           memoToDelete
-            ? `「${memoToDelete.title?.trim() || '제목 없음'}」 메모를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`
+            ? `「${memoToDelete.title?.trim() || '제목 없음'}」을(를) 휴지통으로 옮깁니다. 7일 후 자동 삭제됩니다.`
             : ''
         }
         confirmLabel="삭제"

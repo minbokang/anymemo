@@ -34,5 +34,9 @@ export function formatAuthError(error) {
     return '이메일 인증이 필요합니다. 메일함의 확인 링크를 눌러 주세요.'
   }
 
+  if (msg.includes('For security purposes')) {
+    return '잠시 후 다시 시도해 주세요.'
+  }
+
   return msg || '요청에 실패했습니다.'
 }

@@ -119,9 +119,26 @@ async function applyPendingOp(userId, op) {
     return
   }
   if (op.type === 'delete') {
-    const { error } = await supabase.from('memos').delete().eq('id', op.id)
+    const { error } = await supabase
+      .from('memos')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', op.id)
     if (error) throw error
   }
+}
+
+const TRASH_RETENTION_MS = 7 * 24 * 60 * 60 * 1000
+
+/** 7일 지난 휴지통 메모 영구 삭제 */
+export async function purgeExpiredTrash(userId) {
+  const cutoff = new Date(Date.now() - TRASH_RETENTION_MS).toISOString()
+  const { error } = await supabase
+    .from('memos')
+    .delete()
+    .eq('user_id', userId)
+    .not('deleted_at', 'is', null)
+    .lt('deleted_at', cutoff)
+  if (error) throw error
 }
 
 export async function flushPendingOps(userId) {
@@ -143,6 +160,7 @@ export async function flushPendingOps(userId) {
   const { data, error } = await supabase
     .from('memos')
     .select('*')
+    .is('deleted_at', null)
     .order('sort_order', { ascending: true })
     .order('updated_at', { ascending: false })
 
