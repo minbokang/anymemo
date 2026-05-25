@@ -230,6 +230,8 @@ export const ko = {
   },
   installGuide: {
     title: '다른 기기에서 사용하기',
+    expandHint: '눌러서 설치 안내 보기',
+    collapseHint: '눌러서 설치 안내 닫기',
     subtitle: '같은 계정으로 로그인하면 메모가 자동으로 맞춰집니다.',
     recommendedHere: '이 기기',
     web: '브라우저',

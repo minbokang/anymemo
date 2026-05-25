@@ -231,6 +231,8 @@ export const en = {
   },
   installGuide: {
     title: 'Use on other devices',
+    expandHint: 'Tap to show install options',
+    collapseHint: 'Tap to hide install options',
     subtitle: 'Sign in with the same account to keep your memos in sync.',
     recommendedHere: 'this device',
     web: 'Browser',
