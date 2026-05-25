@@ -34,6 +34,8 @@ export const en = {
       'Sign-up complete. Check your inbox for the confirmation link. (If email confirmation is off, you are signed in.)',
     signUpSuccess: 'Signed up and signed in.',
     signInSuccess: 'Signed in.',
+    orDivider: 'or',
+    continueWithGoogle: 'Continue with Google',
   },
   errors: {
     auth: {
@@ -46,6 +48,8 @@ export const en = {
       emailNotConfirmed:
         'Email confirmation required. Open the link in your inbox.',
       securityWait: 'Please try again in a moment.',
+      oauthDisabled:
+        'Google sign-in is not configured yet. Enable the Google provider in the Supabase dashboard.',
       generic: 'Request failed.',
     },
   },

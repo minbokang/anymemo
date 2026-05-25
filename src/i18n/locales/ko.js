@@ -34,6 +34,8 @@ export const ko = {
       '가입 완료. 이메일 확인 링크를 보냈습니다. (확인 비활성화 시 바로 로그인됩니다)',
     signUpSuccess: '가입 및 로그인되었습니다.',
     signInSuccess: '로그인되었습니다.',
+    orDivider: '또는',
+    continueWithGoogle: 'Google로 계속',
   },
   errors: {
     auth: {
@@ -46,6 +48,8 @@ export const ko = {
       emailNotConfirmed:
         '이메일 인증이 필요합니다. 메일함의 확인 링크를 눌러 주세요.',
       securityWait: '잠시 후 다시 시도해 주세요.',
+      oauthDisabled:
+        'Google 로그인이 아직 설정되지 않았습니다. Supabase 대시보드에서 Google Provider를 켜 주세요.',
       generic: '요청에 실패했습니다.',
     },
   },

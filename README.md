@@ -194,9 +194,18 @@ npm run supabase:push
 
 ### 4. Auth 설정 (Supabase 대시보드)
 
-- **Authentication → URL Configuration**: Redirect URLs에 `http://localhost:5173` 추가
+- **Authentication → URL Configuration**: Redirect URLs에 `http://localhost:5173`, `https://anymemo.vercel.app` 추가
 - 로컬 테스트용 이메일: 실제 도메인(Gmail 등) 사용 (`test@test.com` 등은 Supabase에서 거부될 수 있음)
 - 개발 중에는 **Confirm email** 비활성화를 권장(선택)
+
+**Google 로그인** (로그인 화면 「Google로 계속」)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → OAuth 클라이언트 ID (웹) 생성
+2. **승인된 리디렉션 URI**에 Supabase 콜백 추가:  
+   `https://<PROJECT_REF>.supabase.co/auth/v1/callback`  
+   (대시보드 **Authentication → Providers → Google**에도 표시됨)
+3. Supabase **Authentication → Providers → Google** 활성화 후 Client ID / Secret 입력
+4. **Site URL**·Redirect URLs에 앱 주소(`http://localhost:5173`, 프로덕션 URL) 포함
 
 ### 5. 개발 서버 실행
 

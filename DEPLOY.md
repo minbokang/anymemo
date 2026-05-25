@@ -32,7 +32,9 @@ Web and desktop builds embed these values **at build time**.
 - Vercel: Project → Settings → Environment Variables
 - Tauri: same `.env.local` must exist before `npm run build` / `npm run tauri:build`
 
-In Supabase **Authentication → URL Configuration**, add production URLs (e.g. `https://anymemo.vercel.app`) to Redirect URLs.
+In Supabase **Authentication → URL Configuration**, add production URLs (e.g. `https://anymemo.vercel.app`, `http://localhost:5173`) to Redirect URLs.
+
+**Google sign-in:** enable **Authentication → Providers → Google** with OAuth Client ID and **Client Secret** from [Google Cloud Console](https://console.cloud.google.com/) (Web application). Redirect URI: `https://<PROJECT_REF>.supabase.co/auth/v1/callback`. See [README § Auth](./README.md#4-auth-설정-supabase-대시보드).
 
 ---
 

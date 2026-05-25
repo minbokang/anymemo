@@ -34,5 +34,12 @@ export function formatAuthError(error, locale = loadLocale()) {
     return t('securityWait')
   }
 
+  if (
+    msg.includes('provider is not enabled') ||
+    msg.includes('Unsupported provider')
+  ) {
+    return t('oauthDisabled')
+  }
+
   return msg || t('generic')
 }
