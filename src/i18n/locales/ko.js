@@ -84,7 +84,9 @@ export const ko = {
     platformWeb: '브라우저 — 주소만 열면 바로 사용',
     platformPwa:
       '휴대폰·태블릿 — 「홈 화면에 추가」하면 앱처럼 실행 (상단 설치 안내 참고)',
-    platformDesktop: 'Windows·Mac — 설치형 앱 (준비 중)',
+    platformDesktopMac:
+      'Mac — 로그인 화면 또는 GitHub Releases에서 설치 (Apple Silicon, v0.1.0)',
+    platformDesktopWindows: 'Windows — 설치형 앱 (준비 중)',
     platformMobile: 'iPhone·Android — 앱 스토어 (준비 중)',
     sectionShortcuts: '단축키',
     shortcutNewMemo: '⌘N (Windows: Ctrl+N) — 새 메모',

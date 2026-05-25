@@ -84,7 +84,9 @@ export const en = {
     platformWeb: 'Browser — open the site and start writing',
     platformPwa:
       'Phone or tablet — Add to Home Screen for an app-like experience (see the install banner)',
-    platformDesktop: 'Windows and Mac — desktop app (coming soon)',
+    platformDesktopMac:
+      'Mac — install from the sign-in screen or GitHub Releases (Apple Silicon, v0.1.0)',
+    platformDesktopWindows: 'Windows — desktop app (coming soon)',
     platformMobile: 'iPhone and Android — app stores (coming soon)',
     sectionShortcuts: 'Shortcuts',
     shortcutNewMemo: '⌘N (Windows: Ctrl+N) — new memo',

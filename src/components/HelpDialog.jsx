@@ -72,7 +72,8 @@ export default function HelpDialog({ open, onClose }) {
           <HelpSection title={t('help.sectionPlatforms')}>
             <HelpItem>{t('help.platformWeb')}</HelpItem>
             <HelpItem>{t('help.platformPwa')}</HelpItem>
-            <HelpItem>{t('help.platformDesktop')}</HelpItem>
+            <HelpItem>{t('help.platformDesktopMac')}</HelpItem>
+            <HelpItem>{t('help.platformDesktopWindows')}</HelpItem>
             <HelpItem>{t('help.platformMobile')}</HelpItem>
           </HelpSection>
           <HelpSection title={t('help.sectionShortcuts')}>

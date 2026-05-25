@@ -3,6 +3,8 @@
 [![Web](https://img.shields.io/badge/web-anymemo.vercel.app-18181b)](https://anymemo.vercel.app)
 [![Release](https://img.shields.io/github/v/release/minbokang/anymemo?label=desktop)](https://github.com/minbokang/anymemo/releases)
 
+**[English](#english)** · **한국어** (아래 본문)
+
 AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메모를 쓰고 **실시간 동기화**하는 크로스 플랫폼 메모장입니다.  
 **코드 한 벌**(Vite + React)로 여러 환경을 지원하는 것이 이 저장소의 핵심이며, 백엔드 서버 없이 **Supabase**(Auth · Postgres · Realtime)와 **IndexedDB** 오프라인 캐시만 사용합니다.
 
@@ -10,7 +12,69 @@ AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메�
 |---|---|
 | **데모 (웹)** | https://anymemo.vercel.app |
 | **macOS 앱** | [Releases v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) (Apple Silicon) |
-| **문서** | [배포.md](./배포.md) · [계획.md](./계획.md) |
+| **문서** | [배포.md](./배포.md) |
+
+---
+
+## English
+
+AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + React** codebase and **real-time sync** via Supabase (Auth, Postgres, Realtime) plus **IndexedDB** for offline use. There is no separate Node backend.
+
+| | |
+|---|---|
+| **Web demo** | https://anymemo.vercel.app |
+| **macOS app** | [Releases v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) (Apple Silicon) |
+| **Deploy notes** | [배포.md](./배포.md) (Korean) |
+
+### Features
+
+- Email sign-in, sign-up, password reset (Supabase Auth)
+- Memos with debounced autosave, Realtime sync, offline queue
+- Pin, drag reorder, search, trash (auto-delete after 7 days)
+- Slash commands for dates (`/today`, `/date`, `/calendar`, …)
+- Stats (7-day chart, character counts)
+- **Korean / English UI** — language toggle on the **sign-in screen** (top right)
+- PWA (Add to Home Screen), Tauri desktop (macOS released; Windows build TBD)
+
+### Platforms
+
+| Environment | Status | Notes |
+|-------------|--------|-------|
+| Web | ✅ | Vercel |
+| PWA (iOS / Android) | ✅ | Add to Home Screen in Safari / Chrome |
+| macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — Apple Silicon |
+| Windows (Tauri) | 🔧 | Build with `npm run tauri:build` on Windows, then attach to a release |
+| App Store / Play | ⏸️ | Capacitor later; use PWA for now |
+
+### Quick start
+
+```bash
+git clone https://github.com/minbokang/anymemo.git
+cd anymemo
+npm install
+cp .env.example .env.local
+```
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local` from Supabase **Settings → API** (use the **anon** key only, never `service_role`). Apply migrations under `supabase/migrations/` (CLI: `npx supabase link --project-ref YOUR_REF` then `npm run supabase:push`). Add `http://localhost:5173` to Auth redirect URLs. Run `npm run dev` → http://localhost:5173
+
+| Script | Purpose |
+|--------|---------|
+| `npm run dev` | Web dev server |
+| `npm run build` | Production web build |
+| `npm run tauri:dev` / `tauri:build` | Desktop app |
+| `npm run supabase:push` | Push DB migrations |
+
+Desktop installers (`.dmg`, `.zip`) are published on **GitHub Releases**, not on Vercel.
+
+### FAQ
+
+| Issue | Check |
+|-------|--------|
+| Sign-in fails | Supabase URL/anon key, redirect URLs, real email domain |
+| Mac download 404 | Repo visibility (public) and [Releases](https://github.com/minbokang/anymemo/releases) assets |
+| No memos | Migrations + RLS; browser network tab |
+
+Issues: [GitHub Issues](https://github.com/minbokang/anymemo/issues). When changing UI copy, update both `src/i18n/locales/ko.js` and `en.js`.
 
 ---
 
@@ -163,8 +227,7 @@ anymemo/
 ├── src-tauri/              # Tauri v2 (Rust)
 ├── supabase/migrations/    # Postgres 스키마
 ├── scripts/                # 마이그레이션 헬퍼
-├── 배포.md                  # 웹 / Tauri / Capacitor 배포
-└── 계획.md                  # 개발 로드맵
+└── 배포.md                  # 웹 / Tauri / Capacitor 배포
 ```
 
 ### 동기화·오프라인 (핵심 로직)
@@ -249,7 +312,7 @@ flowchart LR
 
 ## 라이선스
 
-이 저장소는 현재 **private** 용도로 운영 중일 수 있습니다. 포크·재배포 전 저장소 소유자의 라이선스 정책을 확인하세요.
+포크·재배포 전 라이선스 정책을 확인하세요.
 
 ---
 

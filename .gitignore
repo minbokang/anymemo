@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 supabase.md
+계획.md
 supabase/.temp
 .vercel
 
