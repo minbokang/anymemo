@@ -144,6 +144,34 @@ Typical flow without App Store / Microsoft Store:
 - Unsigned / un-notarized builds may trigger Gatekeeper warnings.
 - For production: Apple Developer ID + `codesign` + notarization.
 
+### Windows — GitHub Actions (no Windows PC required)
+
+Workflow: [`.github/workflows/release-windows.yml`](./.github/workflows/release-windows.yml)
+
+| Item | Details |
+|------|---------|
+| Runner | `windows-latest` |
+| Trigger | Push tag `v*` (e.g. `v0.1.1`) or **Run workflow** in the Actions tab |
+| Output | Uploads `.msi` / `.exe` to the GitHub Release for that tag |
+
+**One-time setup**
+
+1. **Settings → Secrets and variables → Actions**:
+   - `VITE_SUPABASE_URL` (same as Vercel)
+   - `VITE_SUPABASE_ANON_KEY` (anon public key only)
+2. **Settings → Actions → General → Workflow permissions** → **Read and write permissions**
+
+**Example**
+
+```bash
+git tag v0.1.1
+git push origin v0.1.1
+```
+
+To attach Windows assets to an existing release (e.g. `v0.1.0`), run the workflow manually and set tag to `v0.1.0`.
+
+After the MSI is published, set `VITE_DOWNLOAD_WINDOWS_MSI` on Vercel and update README links.
+
 ### Windows notes
 
 - A code-signing certificate reduces SmartScreen warnings.

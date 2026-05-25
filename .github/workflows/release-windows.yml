@@ -1,0 +1,66 @@
+# Build Windows installers on GitHub Actions and attach to a GitHub Release.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   VITE_SUPABASE_URL
+#   VITE_SUPABASE_ANON_KEY
+#
+# Repo Settings → Actions → General → Workflow permissions:
+#   "Read and write permissions" (for GITHUB_TOKEN release upload)
+#
+# Trigger: push tag v* (e.g. v0.1.1) or manual workflow_dispatch.
+
+name: Release Windows (Tauri)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g. v0.1.1)'
+        required: true
+        default: v0.1.1
+
+jobs:
+  release-windows:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_APP_URL: https://anymemo.vercel.app
+        with:
+          tagName: ${{ env.RELEASE_TAG }}
+          releaseName: AnyMemo ${{ env.RELEASE_TAG }}
+          releaseBody: |
+            Windows desktop build (GitHub Actions, windows-latest).
+
+            Install the `.msi` or `.exe` below. macOS builds are published separately.
+          releaseDraft: false
+          prerelease: false
