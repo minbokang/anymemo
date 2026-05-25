@@ -4,6 +4,7 @@ import { useTranslation } from '../context/I18nContext'
 import { formatAuthError } from '../lib/authErrors'
 import { getRememberMe, loadRememberedEmail } from '../lib/authStorage'
 import LanguageToggle from './LanguageToggle'
+import PlatformInstallGuide from './PlatformInstallGuide'
 
 export default function AuthForm() {
   const { signIn, signUp, resetPassword } = useAuth()
@@ -57,7 +58,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
+    <div className="mx-auto w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
       <div className="mb-1 flex items-start justify-between gap-2">
         <h1 className="text-xl font-medium text-zinc-900 dark:text-zinc-100">
           AnyMemo
@@ -204,6 +205,8 @@ export default function AuthForm() {
           {t('auth.backToSignIn')}
         </button>
       )}
+
+      {mode !== 'reset' && <PlatformInstallGuide />}
     </div>
   )
 }

@@ -11,11 +11,12 @@ import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { memoPreview } from '../lib/memoPreview'
 import { loadAppView, saveAppView } from '../lib/userPrefs'
 import ConfirmDialog from './ConfirmDialog'
+import HelpDialog from './HelpDialog'
 import HighlightText from './HighlightText'
 import InstallPrompt from './InstallPrompt'
 import MemoContentTextarea from './MemoContentTextarea'
 import MemoEditorFooter from './MemoEditorFooter'
-import { IconChart, IconPin, pinIconClass } from './memoIcons'
+import { IconChart, IconHelp, IconPin, pinIconClass } from './memoIcons'
 import StatsPage from './StatsPage'
 import Toast from './Toast'
 
@@ -272,6 +273,7 @@ export default function MemoApp() {
   const [memoToDelete, setMemoToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [appView, setAppViewState] = useState(loadAppView)
   const setAppView = useCallback((next) => {
     setAppViewState((prev) => {
@@ -350,9 +352,14 @@ export default function MemoApp() {
   }, [activeId])
 
   useKeyboardShortcuts({
+    enabled: appView === 'memos' && !helpOpen,
     onNewMemo: () => void handleCreateMemo(),
     onFocusSearch: () => searchInputRef.current?.focus(),
     onEscape: () => {
+      if (helpOpen) {
+        setHelpOpen(false)
+        return
+      }
       if (searchQuery.trim()) {
         setSearchQuery('')
         return
@@ -402,6 +409,15 @@ export default function MemoApp() {
             <span className={refreshing ? 'animate-spin' : ''}>↻</span>
           </button>
           <SaveIndicator status={saveStatus} className="hidden sm:inline-flex" />
+          <button
+            type="button"
+            onClick={() => setHelpOpen(true)}
+            className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
+            aria-label={t('nav.help')}
+            title={t('nav.helpTitle')}
+          >
+            <IconHelp />
+          </button>
           <button
             type="button"
             onClick={() => setAppView((v) => (v === 'stats' ? 'memos' : 'stats'))}
@@ -600,7 +616,21 @@ export default function MemoApp() {
             ))}
           </ul>
           <p className="panel-footer hidden w-full items-center px-3 text-[10px] leading-none text-zinc-400 safe-bottom dark:text-zinc-500 md:flex">
-            {showTrash ? t('trash.footerHint') : t('list.footerHint')}
+            {showTrash ? (
+              t('trash.footerHint')
+            ) : (
+              <>
+                <span className="min-w-0 truncate">{t('list.footerHint')}</span>
+                <span className="mx-1.5 shrink-0">·</span>
+                <button
+                  type="button"
+                  onClick={() => setHelpOpen(true)}
+                  className="shrink-0 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-600 dark:hover:text-zinc-300"
+                >
+                  {t('nav.help')}
+                </button>
+              </>
+            )}
           </p>
         </aside>
 
@@ -660,6 +690,8 @@ export default function MemoApp() {
         </section>
       </div>
       )}
+
+      <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       <ConfirmDialog
         open={memoToDelete != null}

@@ -73,6 +73,45 @@ export const ko = {
     backToMemos: '메모로 돌아가기',
     memosTitle: '메모',
     statsTitle: '통계',
+    help: '도움말',
+    helpTitle: '도움말',
+  },
+  help: {
+    title: '도움말',
+    intro:
+      '휴대폰, 태블릿, 컴퓨터, 브라우저 어디서나 같은 메모를 이어 쓸 수 있습니다. 로그인한 계정으로 작성·수정한 내용은 자동으로 맞춰지고, 잠시 오프라인이어도 저장 후 연결되면 동기화됩니다.',
+    sectionPlatforms: '어디서 쓸 수 있나요?',
+    platformWeb: '브라우저 — 주소만 열면 바로 사용',
+    platformPwa:
+      '휴대폰·태블릿 — 「홈 화면에 추가」하면 앱처럼 실행 (상단 설치 안내 참고)',
+    platformDesktop: 'Windows·Mac — 설치형 앱 (준비 중)',
+    platformMobile: 'iPhone·Android — 앱 스토어 (준비 중)',
+    sectionShortcuts: '단축키',
+    shortcutNewMemo: '⌘N (Windows: Ctrl+N) — 새 메모',
+    shortcutSearch: '/ — 검색창 포커스 (입력 중이 아닐 때)',
+    shortcutEscape:
+      'Esc — 검색 지우기 · 삭제 확인 닫기 · 휴지통 나가기 · 모바일에서 목록',
+    sectionSlash: '본문 슬래시 명령',
+    slashCalendar:
+      '/달력 · /date · /날짜 — 날짜 선택 후 삽입 (예: 2025.05.01)',
+    slashRelative: '/어제 · /오늘 · /내일 · /모레 — 해당 날짜 바로 삽입',
+    sectionEdit: '메모 편집',
+    editPin: '핀 버튼 — 상단 고정·해제 (고정 시 빨간 아이콘)',
+    editReorder:
+      '데스크톱: 목록 왼쪽 ⠿ 드래그로 순서 변경 (검색 중에는 불가)',
+    editExport: '다운로드 — 현재 메모 또는 전체를 Markdown(.md)으로 저장',
+    sectionTrash: '휴지통',
+    trashBody:
+      '삭제한 메모는 휴지통으로 이동합니다. 7일 후 자동 삭제됩니다. 복원·영구 삭제가 가능합니다.',
+    sectionSync: '동기화',
+    syncBody:
+      '로그인 시 서버와 자동 동기화됩니다. 오프라인에서는 기기에 저장 후, 연결되면 업로드됩니다. 상단 동기화 배지를 탭하면 수동 동기화할 수 있고, ↻ 버튼은 전체 새로고침입니다.',
+    sectionStats: '통계',
+    statsBody:
+      '헤더의 차트 아이콘에서 최근 7일 작성 수, 고정·휴지통·글자 수 등을 볼 수 있습니다.',
+    sectionLang: '언어',
+    langBody:
+      '한국어 / English는 로그아웃 후 로그인 화면 우측에서 선택합니다.',
   },
   theme: {
     lightMode: '라이트 모드',
@@ -178,8 +217,24 @@ export const ko = {
     barTooltipNoCount: '{{date}} ({{weekday}})',
   },
   install: {
-    message: 'AnyMemo를 홈 화면에 추가하면 앱처럼 쓸 수 있습니다.',
+    message:
+      '홈 화면에 추가하면 이 기기에서도 앱처럼 쓸 수 있습니다. 다른 기기·웹·데스크톱과 동일 계정으로 동기화됩니다.',
     action: '설치',
+  },
+  installGuide: {
+    title: '다른 기기에서 사용하기',
+    subtitle: '같은 계정으로 로그인하면 메모가 자동으로 맞춰집니다.',
+    recommendedHere: '이 기기',
+    web: '브라우저',
+    openWeb: '웹에서 열기',
+    mobile: '휴대폰 · 태블릿',
+    mobileHint:
+      'Safari 또는 Chrome으로 이 주소에 접속한 뒤, 메뉴에서 「홈 화면에 추가」를 선택하세요.',
+    mac: 'Mac',
+    downloadMac: 'Mac 앱 다운로드',
+    windows: 'Windows',
+    downloadWindows: 'Windows 앱 다운로드',
+    allDownloads: '모든 설치 파일 (GitHub)',
   },
   common: {
     untitled: '제목 없음',

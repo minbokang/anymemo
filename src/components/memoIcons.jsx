@@ -1,3 +1,22 @@
+export function IconHelp({ className = 'h-4 w-4' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
+      <circle cx="10" cy="10" r="7" />
+      <path
+        strokeLinecap="round"
+        d="M10 13.25v.25M10 9.5c0-1.25 1.25-1.5 1.5-2.25a1.75 1.75 0 10-3.5 0"
+      />
+    </svg>
+  )
+}
+
 export function IconChart({ className = 'h-4 w-4' }) {
   return (
     <svg

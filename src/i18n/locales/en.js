@@ -73,6 +73,46 @@ export const en = {
     backToMemos: 'Back to memos',
     memosTitle: 'Memos',
     statsTitle: 'Stats',
+    help: 'Help',
+    helpTitle: 'Help',
+  },
+  help: {
+    title: 'Help',
+    intro:
+      'Use the same notes on your phone, tablet, computer, or browser. Sign in once—edits sync automatically. You can keep writing offline; changes upload when you are back online.',
+    sectionPlatforms: 'Where can I use it?',
+    platformWeb: 'Browser — open the site and start writing',
+    platformPwa:
+      'Phone or tablet — Add to Home Screen for an app-like experience (see the install banner)',
+    platformDesktop: 'Windows and Mac — desktop app (coming soon)',
+    platformMobile: 'iPhone and Android — app stores (coming soon)',
+    sectionShortcuts: 'Shortcuts',
+    shortcutNewMemo: '⌘N (Windows: Ctrl+N) — new memo',
+    shortcutSearch: '/ — focus search (when not typing in a field)',
+    shortcutEscape:
+      'Esc — clear search · close dialogs · leave trash · back to list on mobile',
+    sectionSlash: 'Slash commands in body',
+    slashCalendar:
+      '/calendar · /date — open date picker, inserts e.g. 2025.05.01',
+    slashRelative:
+      '/yesterday · /today · /tomorrow · /dayafter — insert that date',
+    sectionEdit: 'Editing',
+    editPin: 'Pin button — pin to top (red icon when pinned)',
+    editReorder:
+      'Desktop: drag ⠿ on the left to reorder (disabled while searching)',
+    editExport: 'Download — save current memo or all memos as Markdown (.md)',
+    sectionTrash: 'Trash',
+    trashBody:
+      'Deleted memos go to trash for 7 days, then are removed automatically. Restore or delete permanently from trash.',
+    sectionSync: 'Sync',
+    syncBody:
+      'Memos sync to the server when signed in. Offline edits are saved locally and upload when online. Tap the sync badge to sync manually; ↻ refreshes everything.',
+    sectionStats: 'Stats',
+    statsBody:
+      'Chart icon in the header shows memos created in the last 7 days, counts, and character totals.',
+    sectionLang: 'Language',
+    langBody:
+      'Choose Korean or English on the sign-in screen (top right) after signing out.',
   },
   theme: {
     lightMode: 'Light mode',
@@ -178,8 +218,24 @@ export const en = {
     barTooltipNoCount: '{{date}} ({{weekday}})',
   },
   install: {
-    message: 'Add AnyMemo to your home screen to use it like an app.',
+    message:
+      'Add to Home Screen for an app-like experience on this device. Syncs with the same account on web and desktop.',
     action: 'Install',
+  },
+  installGuide: {
+    title: 'Use on other devices',
+    subtitle: 'Sign in with the same account to keep your memos in sync.',
+    recommendedHere: 'this device',
+    web: 'Browser',
+    openWeb: 'Open in browser',
+    mobile: 'Phone · tablet',
+    mobileHint:
+      'Open this site in Safari or Chrome, then choose Add to Home Screen from the menu.',
+    mac: 'Mac',
+    downloadMac: 'Download for Mac',
+    windows: 'Windows',
+    downloadWindows: 'Download for Windows',
+    allDownloads: 'All installers (GitHub)',
   },
   common: {
     untitled: 'Untitled',
