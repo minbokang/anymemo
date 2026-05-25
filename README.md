@@ -12,7 +12,7 @@ AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메�
 |---|---|
 | **데모 (웹)** | https://anymemo.vercel.app |
 | **macOS 앱** | [Releases v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) (Apple Silicon) |
-| **문서** | [배포.md](./배포.md) |
+| **문서** | [배포.md](./배포.md) · [DEPLOY.md](./DEPLOY.md) |
 
 ---
 
@@ -24,7 +24,7 @@ AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + R
 |---|---|
 | **Web demo** | https://anymemo.vercel.app |
 | **macOS app** | [Releases v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) (Apple Silicon) |
-| **Deploy notes** | [배포.md](./배포.md) (Korean) |
+| **Deploy notes** | [DEPLOY.md](./DEPLOY.md) · [배포.md](./배포.md) |
 
 ### Features
 
@@ -112,7 +112,7 @@ Issues: [GitHub Issues](https://github.com/minbokang/anymemo/issues). When chang
 | PWA (iOS / Android) | ✅ | 브라우저 「홈 화면에 추가」 |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — 현재 Apple Silicon 빌드 |
 | Windows (Tauri) | 🔧 | Windows에서 `npm run tauri:build` 후 릴리스에 추가 |
-| App Store / Play Store | ⏸️ | 추후 Capacitor ([배포.md](./배포.md) 3단계) |
+| App Store / Play Store | ⏸️ | 추후 Capacitor ([DEPLOY.md](./DEPLOY.md) stage 3) |
 
 ---
 
@@ -227,7 +227,8 @@ anymemo/
 ├── src-tauri/              # Tauri v2 (Rust)
 ├── supabase/migrations/    # Postgres 스키마
 ├── scripts/                # 마이그레이션 헬퍼
-└── 배포.md                  # 웹 / Tauri / Capacitor 배포
+├── 배포.md                  # 배포 가이드 (한국어)
+└── DEPLOY.md                # Deployment guide (English)
 ```
 
 ### 동기화·오프라인 (핵심 로직)
@@ -275,9 +276,9 @@ flowchart LR
 
 | 대상 | 가이드 |
 |------|--------|
-| 웹 (Vercel) | [배포.md §1](./배포.md) — `VITE_*` 환경 변수를 Vercel에도 설정 |
-| macOS / Windows 앱 | [배포.md §2](./배포.md) — `npm run tauri:build` → GitHub Releases |
-| 모바일 스토어 | [배포.md §3](./배포.md) — 추후 |
+| 웹 (Vercel) | [배포.md §1](./배포.md) · [DEPLOY.md stage 1](./DEPLOY.md) |
+| macOS / Windows 앱 | [배포.md §2](./배포.md) · [DEPLOY.md stage 2](./DEPLOY.md) |
+| 모바일 스토어 | [배포.md §3](./배포.md) · [DEPLOY.md stage 3](./DEPLOY.md) |
 
 **설치 파일 위치**
 
