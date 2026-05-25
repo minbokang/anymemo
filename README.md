@@ -11,8 +11,14 @@ AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메�
 | | |
 |---|---|
 | **데모 (웹)** | https://anymemo.vercel.app |
-| **macOS 앱** | [Releases v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) (Apple Silicon) |
 | **문서** | [배포.md](./배포.md) · [DEPLOY.md](./DEPLOY.md) |
+
+### 다운로드 (v0.1.0)
+
+| OS | 설치 파일 |
+|----|-----------|
+| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
+| **Windows** | v0.1.0에 `.msi`/`.exe` 없음 — [Releases](https://github.com/minbokang/anymemo/releases)에서 추후 확인 · [Windows 빌드](./배포.md#2단계-데스크톱-tauri-v2--지금-진행) |
 
 ---
 
@@ -23,8 +29,14 @@ AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + R
 | | |
 |---|---|
 | **Web demo** | https://anymemo.vercel.app |
-| **macOS app** | [Releases v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) (Apple Silicon) |
 | **Deploy notes** | [DEPLOY.md](./DEPLOY.md) · [배포.md](./배포.md) |
+
+### Downloads (v0.1.0)
+
+| OS | Installers |
+|----|------------|
+| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
+| **Windows** | No `.msi`/`.exe` on v0.1.0 yet — check [Releases](https://github.com/minbokang/anymemo/releases) · [Build on Windows](./DEPLOY.md#stage-2-desktop-tauri-v2) |
 
 ### Features
 
@@ -43,7 +55,7 @@ AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + R
 | Web | ✅ | Vercel |
 | PWA (iOS / Android) | ✅ | Add to Home Screen in Safari / Chrome |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — Apple Silicon |
-| Windows (Tauri) | 🔧 | Build with `npm run tauri:build` on Windows, then attach to a release |
+| Windows (Tauri) | 🔧 | No installer on [v0.1.0](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) yet — [build guide](./DEPLOY.md#stage-2-desktop-tauri-v2) |
 | App Store / Play | ⏸️ | Capacitor later; use PWA for now |
 
 ### Quick start
@@ -64,7 +76,7 @@ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local` from Supaba
 | `npm run tauri:dev` / `tauri:build` | Desktop app |
 | `npm run supabase:push` | Push DB migrations |
 
-Desktop installers (`.dmg`, `.zip`) are published on **GitHub Releases**, not on Vercel.
+Desktop installers (`.dmg`, `.zip`; Windows `.msi` when published) are on **GitHub Releases**, not on Vercel.
 
 ### FAQ
 
@@ -111,7 +123,7 @@ Issues: [GitHub Issues](https://github.com/minbokang/anymemo/issues). When chang
 | 웹 브라우저 | ✅ | Vercel 배포 |
 | PWA (iOS / Android) | ✅ | 브라우저 「홈 화면에 추가」 |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — 현재 Apple Silicon 빌드 |
-| Windows (Tauri) | 🔧 | Windows에서 `npm run tauri:build` 후 릴리스에 추가 |
+| Windows (Tauri) | 🔧 | v0.1.0에 설치 파일 없음 — [Releases](https://github.com/minbokang/anymemo/releases) · [Windows 빌드](./배포.md#2단계-데스크톱-tauri-v2--지금-진행) |
 | App Store / Play Store | ⏸️ | 추후 Capacitor ([DEPLOY.md](./DEPLOY.md) stage 3) |
 
 ---
@@ -282,8 +294,9 @@ flowchart LR
 
 **설치 파일 위치**
 
-- **GitHub Releases** — `.dmg`, `.zip` 등 데스크톱 바이너리
-- **Vercel** — 웹 정적 파일만 (`dist/`). DMG/MSI는 호스팅하지 않음
+- **macOS** — [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip)
+- **Windows** — v0.1.0 미포함, [Releases](https://github.com/minbokang/anymemo/releases) 또는 [배포.md §2](./배포.md#2단계-데스크톱-tauri-v2--지금-진행)에서 빌드
+- **Vercel** — 웹만 (`dist/`). 설치 파일은 호스팅하지 않음
 
 ---
 
