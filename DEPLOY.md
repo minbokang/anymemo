@@ -15,7 +15,7 @@ Deploy the Vite + React + Supabase memo app in order: **web → desktop (Tauri) 
 | OS | Installers |
 |----|------------|
 | **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
-| **Windows** | No `.msi`/`.exe` on v0.1.0 yet — [Releases](https://github.com/minbokang/anymemo/releases) · [Build on Windows](#stage-2-desktop-tauri-v2) |
+| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
 
 ---
 

@@ -86,7 +86,8 @@ export const en = {
       'Phone or tablet — Add to Home Screen for an app-like experience (see the install banner)',
     platformDesktopMac:
       'Mac — install from the sign-in screen or GitHub Releases (Apple Silicon, v0.1.0)',
-    platformDesktopWindows: 'Windows — desktop app (coming soon)',
+    platformDesktopWindows:
+      'Windows — install from the sign-in screen or GitHub Releases (x64, v0.1.0)',
     platformMobile: 'iPhone and Android — app stores (coming soon)',
     sectionShortcuts: 'Shortcuts',
     shortcutNewMemo: '⌘N (Windows: Ctrl+N) — new memo',

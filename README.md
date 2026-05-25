@@ -18,7 +18,7 @@ AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메�
 | OS | 설치 파일 |
 |----|-----------|
 | **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
-| **Windows** | CI로 빌드: [Actions](https://github.com/minbokang/anymemo/actions/workflows/release-windows.yml) · [가이드](./배포.md#windows--github-actions-mac-없이-빌드) (v0.1.0에는 MSI 없음) |
+| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
 
 ---
 
@@ -36,7 +36,7 @@ AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + R
 | OS | Installers |
 |----|------------|
 | **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
-| **Windows** | Build via [GitHub Actions](https://github.com/minbokang/anymemo/actions/workflows/release-windows.yml) · [guide](./DEPLOY.md#windows--github-actions-no-windows-pc-required) (no MSI on v0.1.0 yet) |
+| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
 
 ### Features
 
@@ -55,7 +55,7 @@ AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + R
 | Web | ✅ | Vercel |
 | PWA (iOS / Android) | ✅ | Add to Home Screen in Safari / Chrome |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — Apple Silicon |
-| Windows (Tauri) | 🔧 | [Actions CI](./DEPLOY.md#windows--github-actions-no-windows-pc-required) for MSI · not on v0.1.0 yet |
+| Windows (Tauri) | ✅ | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) (GitHub Actions) |
 | App Store / Play | ⏸️ | Capacitor later; use PWA for now |
 
 ### Quick start
@@ -123,7 +123,7 @@ Issues: [GitHub Issues](https://github.com/minbokang/anymemo/issues). When chang
 | 웹 브라우저 | ✅ | Vercel 배포 |
 | PWA (iOS / Android) | ✅ | 브라우저 「홈 화면에 추가」 |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — 현재 Apple Silicon 빌드 |
-| Windows (Tauri) | 🔧 | [Actions CI](./배포.md#windows--github-actions-mac-없이-빌드)로 MSI 빌드 · v0.1.0에는 미포함 |
+| Windows (Tauri) | ✅ | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) (GitHub Actions) |
 | App Store / Play Store | ⏸️ | 추후 Capacitor ([DEPLOY.md](./DEPLOY.md) stage 3) |
 
 ---
@@ -295,7 +295,7 @@ flowchart LR
 **설치 파일 위치**
 
 - **macOS** — [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip)
-- **Windows** — [GitHub Actions](./배포.md#windows--github-actions-mac-없이-빌드)로 MSI 빌드 (v0.1.0 미포함)
+- **Windows** — [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe)
 - **Vercel** — 웹만 (`dist/`). 설치 파일은 호스팅하지 않음
 
 ---

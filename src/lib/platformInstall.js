@@ -49,7 +49,7 @@ export function getPlatformInstallLinks() {
   const windowsDownload =
     import.meta.env.VITE_DOWNLOAD_WINDOWS_MSI?.trim() ||
     import.meta.env.VITE_DOWNLOAD_WINDOWS?.trim() ||
-    releasesUrl
+    releaseAssetUrl('AnyMemo_0.1.0_x64_en-US.msi')
 
   return {
     appUrl,

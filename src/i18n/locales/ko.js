@@ -86,7 +86,8 @@ export const ko = {
       '휴대폰·태블릿 — 「홈 화면에 추가」하면 앱처럼 실행 (상단 설치 안내 참고)',
     platformDesktopMac:
       'Mac — 로그인 화면 또는 GitHub Releases에서 설치 (Apple Silicon, v0.1.0)',
-    platformDesktopWindows: 'Windows — 설치형 앱 (준비 중)',
+    platformDesktopWindows:
+      'Windows — 로그인 화면 또는 GitHub Releases에서 설치 (x64, v0.1.0)',
     platformMobile: 'iPhone·Android — 앱 스토어 (준비 중)',
     sectionShortcuts: '단축키',
     shortcutNewMemo: '⌘N (Windows: Ctrl+N) — 새 메모',
