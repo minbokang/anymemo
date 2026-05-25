@@ -8,8 +8,10 @@ export const ko = {
     switchAria: '언어 변경',
   },
   auth: {
-    subtitleSignIn: '이메일로 로그인',
-    subtitleSignUp: '새 계정 만들기',
+    subtitleSignIn:
+      '모바일·Windows·Mac을 지원합니다. 같은 메모가 기기마다 자동으로 동기화됩니다.',
+    subtitleSignUp:
+      '모바일·Windows·Mac을 지원합니다. 한 계정으로 실시간 동기화됩니다.',
     subtitleReset: '비밀번호 재설정 링크 받기',
     email: '이메일',
     emailSignUpHint:
@@ -36,6 +38,8 @@ export const ko = {
     signInSuccess: '로그인되었습니다.',
     orDivider: '또는',
     continueWithGoogle: 'Google로 계속',
+    contactGithub: 'GitHub',
+    contactEmail: '문의 메일',
   },
   errors: {
     auth: {

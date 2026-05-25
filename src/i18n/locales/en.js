@@ -8,8 +8,10 @@ export const en = {
     switchAria: 'Change language',
   },
   auth: {
-    subtitleSignIn: 'Sign in with email',
-    subtitleSignUp: 'Create an account',
+    subtitleSignIn:
+      'Mobile, Windows, and Mac supported—the same memos sync automatically across devices.',
+    subtitleSignUp:
+      'Mobile, Windows, and Mac supported—one account with real-time sync.',
     subtitleReset: 'Get a password reset link',
     email: 'Email',
     emailSignUpHint:
@@ -36,6 +38,8 @@ export const en = {
     signInSuccess: 'Signed in.',
     orDivider: 'or',
     continueWithGoogle: 'Continue with Google',
+    contactGithub: 'GitHub',
+    contactEmail: 'Contact email',
   },
   errors: {
     auth: {

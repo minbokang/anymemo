@@ -8,6 +8,22 @@
 AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메모를 쓰고 **실시간 동기화**하는 크로스 플랫폼 메모장입니다.  
 **코드 한 벌**(Vite + React)로 여러 환경을 지원하는 것이 이 저장소의 핵심이며, 백엔드 서버 없이 **Supabase**(Auth · Postgres · Realtime)와 **IndexedDB** 오프라인 캐시만 사용합니다.
 
+## 목적
+
+**Windows, Mac, Android, iPhone** 등에서 쓸 수 있고 **계정 하나로 동기화**되는, 정말 **간단한** 메모 앱이 마땅치 않아서 직접 만들었습니다. 메모·노트 앱은 많지만, 대부분 협업·태그·위젯·AI 등 기능이 많아 **무겁게** 느껴질 때가 있습니다. AnyMemo는 **가볍고 단순하게** — 쓰기, 찾기, 기기 간 맞추기 — 에만 집중합니다.
+
+## 주요 기능
+
+- **로그인** — 이메일·비밀번호, Google OAuth, 비밀번호 재설정
+- **메모** — 작성·수정·삭제, 제목+본문, 자동 저장(디바운스)
+- **동기화** — Supabase Realtime + 오프라인 시 IndexedDB 저장 후 재연결 시 업로드
+- **목록** — 검색, 상단 고정(pin), 드래그로 순서 변경(데스크톱)
+- **휴지통** — 삭제 후 7일 보관, 복원·영구 삭제
+- **본문 슬래시** — `/오늘`, `/date`, `/calendar` 등으로 날짜 삽입
+- **통계** — 최근 7일 작성 수 차트, 글자 수·고정·휴지통 요약
+- **UI** — 한국어 / English (로그인 화면에서 선택)
+- **설치** — PWA(홈 화면 추가), macOS·Windows 데스크톱 앱([Releases](https://github.com/minbokang/anymemo/releases))
+
 | | |
 |---|---|
 | **데모 (웹)** | https://anymemo.vercel.app |
@@ -26,6 +42,22 @@ AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메�
 
 AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + React** codebase and **real-time sync** via Supabase (Auth, Postgres, Realtime) plus **IndexedDB** for offline use. There is no separate Node backend.
 
+### Why this exists
+
+I built AnyMemo because I could not find a **simple** memo app that works on **Windows, Mac, Android, and iPhone** and **stays in sync** across devices. Plenty of note apps exist, but many feel **heavy**—extra features, clutter, and weight I do not need for quick notes. AnyMemo stays **light and focused**: write, find, and sync.
+
+### Features
+
+- **Sign-in** — email/password, Google OAuth, password reset
+- **Memos** — create, edit, delete; title + body; debounced autosave
+- **Sync** — Supabase Realtime; offline queue in IndexedDB when disconnected
+- **List** — search, pin to top, drag reorder (desktop)
+- **Trash** — 7-day retention, restore or delete permanently
+- **Slash commands** — insert dates (`/today`, `/date`, `/calendar`, …)
+- **Stats** — 7-day creation chart, counts and character totals
+- **UI** — Korean / English (toggle on the sign-in screen)
+- **Install** — PWA (Add to Home Screen), macOS and Windows desktop apps ([Releases](https://github.com/minbokang/anymemo/releases))
+
 | | |
 |---|---|
 | **Web demo** | https://anymemo.vercel.app |
@@ -37,16 +69,6 @@ AnyMemo is a **cross-platform memo app** (web, PWA, desktop) with one **Vite + R
 |----|------------|
 | **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
 | **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
-
-### Features
-
-- Email sign-in, sign-up, password reset (Supabase Auth)
-- Memos with debounced autosave, Realtime sync, offline queue
-- Pin, drag reorder, search, trash (auto-delete after 7 days)
-- Slash commands for dates (`/today`, `/date`, `/calendar`, …)
-- Stats (7-day chart, character counts)
-- **Korean / English UI** — language toggle on the **sign-in screen** (top right)
-- PWA (Add to Home Screen), Tauri desktop (macOS released; Windows build TBD)
 
 ### Platforms
 
@@ -87,19 +109,6 @@ Desktop installers (`.dmg`, `.zip`; Windows `.msi` when published) are on **GitH
 | No memos | Migrations + RLS; browser network tab |
 
 Issues: [GitHub Issues](https://github.com/minbokang/anymemo/issues). When changing UI copy, update both `src/i18n/locales/ko.js` and `en.js`.
-
----
-
-## 주요 기능
-
-- 이메일 로그인 · 회원가입 · 비밀번호 재설정 (Supabase Auth)
-- 메모 CRUD, 자동 저장(디바운스), 실시간 양방향 동기화(Realtime)
-- 오프라인 작성 → 온라인 복귀 시 동기화(IndexedDB + pending ops)
-- 고정(pin), 드래그 순서 변경, 검색, 휴지통(7일 후 자동 삭제)
-- 본문 슬래시 명령으로 날짜 삽입 (`/오늘`, `/date`, `/calendar` 등)
-- 통계(최근 7일 작성 차트, 글자 수 등)
-- 한국어 / English UI
-- PWA(홈 화면 추가), Tauri 데스크톱 앱
 
 ---
 

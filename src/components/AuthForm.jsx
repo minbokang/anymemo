@@ -5,10 +5,13 @@ import { formatAuthError } from '../lib/authErrors'
 import { getRememberMe, loadRememberedEmail } from '../lib/authStorage'
 import LanguageToggle from './LanguageToggle'
 import PlatformInstallGuide from './PlatformInstallGuide'
+import { getContactInfo } from '../lib/contactInfo'
 
 export default function AuthForm() {
   const { signIn, signUp, resetPassword, signInWithGoogle } = useAuth()
   const { t, locale } = useTranslation()
+  const { githubUrl, githubLabel, email: contactEmail, mailto } =
+    getContactInfo()
   const [mode, setMode] = useState('signIn')
   const [email, setEmail] = useState(() =>
     getRememberMe() ? loadRememberedEmail() : '',
@@ -70,14 +73,21 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-sm safe-bottom dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
+    <div className="mx-auto w-full max-w-md">
+    <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
       <div className="mb-1 flex items-start justify-between gap-2">
         <h1 className="text-xl font-medium text-zinc-900 dark:text-zinc-100">
           AnyMemo
         </h1>
         <LanguageToggle />
       </div>
-      <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+      <p
+        className={`mb-6 text-sm leading-relaxed ${
+          mode === 'reset'
+            ? 'text-zinc-500 dark:text-zinc-400'
+            : 'text-zinc-600 dark:text-zinc-300'
+        }`}
+      >
         {mode === 'signIn' && t('auth.subtitleSignIn')}
         {mode === 'signUp' && t('auth.subtitleSignUp')}
         {mode === 'reset' && t('auth.subtitleReset')}
@@ -243,6 +253,29 @@ export default function AuthForm() {
       )}
 
       {mode !== 'reset' && <PlatformInstallGuide />}
+    </div>
+
+      <footer className="safe-bottom mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+          aria-label={t('auth.contactGithub')}
+        >
+          {githubLabel}
+        </a>
+        <span className="mx-2 text-zinc-300 dark:text-zinc-600" aria-hidden>
+          ·
+        </span>
+        <a
+          href={mailto}
+          className="text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+          aria-label={t('auth.contactEmail')}
+        >
+          {contactEmail}
+        </a>
+      </footer>
     </div>
   )
 }
