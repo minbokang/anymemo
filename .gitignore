@@ -28,3 +28,7 @@ supabase/.temp
 
 # Tauri / Rust
 src-tauri/target/
+
+# Local release artifacts (uploaded to GitHub Releases)
+AnyMemo_*.dmg
+AnyMemo_*.zip
