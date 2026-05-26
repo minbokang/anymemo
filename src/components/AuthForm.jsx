@@ -30,6 +30,16 @@ export default function AuthForm() {
     }
   }, [mode, rememberMe])
 
+  // Google OAuth 후 브라우저 뒤로가기(bfcache) 시 submitting이 true로 남는 문제 방지
+  useEffect(() => {
+    setSubmitting(false)
+    const onPageShow = (event) => {
+      if (event.persisted) setSubmitting(false)
+    }
+    window.addEventListener('pageshow', onPageShow)
+    return () => window.removeEventListener('pageshow', onPageShow)
+  }, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -63,12 +73,11 @@ export default function AuthForm() {
   const handleGoogleSignIn = async () => {
     setError('')
     setMessage('')
-    setSubmitting(true)
     try {
       await signInWithGoogle()
+      // 성공 시 Google로 리다이렉트되므로 submitting을 켜지 않음 (뒤로가기 시 stuck 방지)
     } catch (err) {
       setError(formatAuthError(err, locale))
-      setSubmitting(false)
     }
   }
 
