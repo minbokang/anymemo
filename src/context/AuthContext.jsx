@@ -72,6 +72,8 @@ export function AuthProvider({ children }) {
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/`,
+        // 매번 Google 계정 선택 화면 표시 (브라우저에 로그인된 계정으로 자동 진입 방지)
+        queryParams: { prompt: 'select_account' },
       },
     })
     if (error) throw error
