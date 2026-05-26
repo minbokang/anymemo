@@ -21,7 +21,9 @@ export const en = {
     hidePassword: 'Hide',
     showPasswordAria: 'Show password',
     hidePasswordAria: 'Hide password',
-    rememberMe: 'Stay signed in (remember email)',
+    rememberMe: 'Keep me signed in',
+    rememberMeHint:
+      'Stay logged in after closing the browser. Off signs out when the tab closes.',
     processing: 'Working…',
     signIn: 'Sign in',
     signUp: 'Sign up',

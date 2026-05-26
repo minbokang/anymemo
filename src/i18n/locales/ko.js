@@ -21,7 +21,9 @@ export const ko = {
     hidePassword: '숨기기',
     showPasswordAria: '비밀번호 보기',
     hidePasswordAria: '비밀번호 숨기기',
-    rememberMe: '로그인 상태 유지 (이메일 기억)',
+    rememberMe: '로그인 유지',
+    rememberMeHint:
+      '켜면 브라우저를 닫아도 로그인됩니다. 끄면 탭을 닫을 때 로그아웃됩니다.',
     processing: '처리 중…',
     signIn: '로그인',
     signUp: '회원가입',

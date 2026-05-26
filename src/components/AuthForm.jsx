@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/I18nContext'
 import { formatAuthError } from '../lib/authErrors'
-import { getRememberMe, loadRememberedEmail } from '../lib/authStorage'
+import {
+  clearRememberedEmail,
+  getRememberMe,
+  loadRememberedEmail,
+  setRememberMe as persistRememberMe,
+} from '../lib/authStorage'
 import LanguageToggle from './LanguageToggle'
 import PlatformInstallGuide from './PlatformInstallGuide'
 import { getContactInfo } from '../lib/contactInfo'
@@ -70,9 +75,15 @@ export default function AuthForm() {
     }
   }
 
+  const applyRememberPreference = (checked) => {
+    persistRememberMe(checked)
+    if (!checked) clearRememberedEmail()
+  }
+
   const handleGoogleSignIn = async () => {
     setError('')
     setMessage('')
+    applyRememberPreference(rememberMe)
     try {
       await signInWithGoogle()
       // 성공 시 Google로 리다이렉트되므로 submitting을 켜지 않음 (뒤로가기 시 stuck 방지)
@@ -160,11 +171,18 @@ export default function AuthForm() {
             <input
               type="checkbox"
               checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+              onChange={(e) => {
+                const checked = e.target.checked
+                setRememberMe(checked)
+                applyRememberPreference(checked)
+              }}
               className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400 dark:border-zinc-600"
             />
             <span className="text-sm text-zinc-600 dark:text-zinc-400">
               {t('auth.rememberMe')}
+              <span className="mt-0.5 block text-xs text-zinc-400 dark:text-zinc-500">
+                {t('auth.rememberMeHint')}
+              </span>
             </span>
           </label>
         )}
