@@ -225,5 +225,6 @@ npx cap open android   # or ios
 ## Repository & hosting
 
 - Git: https://github.com/minbokang/anymemo.git
+- License: [MIT](./LICENSE)
 - Web: Vercel (`anymemo.vercel.app`)
 - Desktop: publish installers on GitHub Releases (stage 2 above)

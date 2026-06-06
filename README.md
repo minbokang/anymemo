@@ -2,6 +2,7 @@
 
 [![Web](https://img.shields.io/badge/web-anymemo.vercel.app-18181b)](https://anymemo.vercel.app)
 [![Release](https://img.shields.io/github/v/release/minbokang/anymemo?label=desktop)](https://github.com/minbokang/anymemo/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 **[English](#english)** · **한국어** (아래 본문)
 
@@ -109,6 +110,10 @@ Desktop installers (`.dmg`, `.zip`; Windows `.msi` when published) are on **GitH
 | No memos | Migrations + RLS; browser network tab |
 
 Issues: [GitHub Issues](https://github.com/minbokang/anymemo/issues). When changing UI copy, update both `src/i18n/locales/ko.js` and `en.js`.
+
+### License
+
+This project is licensed under the [MIT License](./LICENSE). You may fork and reuse the code; the hosted service at [anymemo.vercel.app](https://anymemo.vercel.app) is operated separately.
 
 ---
 
@@ -344,7 +349,7 @@ flowchart LR
 
 ## 라이선스
 
-포크·재배포 전 라이선스 정책을 확인하세요.
+[MIT License](./LICENSE) — 코드는 자유롭게 포크·수정·재배포할 수 있습니다. [anymemo.vercel.app](https://anymemo.vercel.app)에서 제공하는 호스팅 서비스는 별도로 운영됩니다.
 
 ---
 
