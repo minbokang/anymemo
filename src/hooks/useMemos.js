@@ -399,6 +399,14 @@ export function useMemos(userId, { notify } = {}) {
     [userId],
   )
 
+  const clearMemoSelection = useCallback(() => {
+    clearSavedTimer()
+    setActiveId(null)
+    setDraft({ title: '', content: '' })
+    dirtyRef.current = false
+    setSaveStatus('idle')
+  }, [])
+
   const togglePin = useCallback(
     async (id) => {
       const memo = memosRef.current.find((m) => m.id === id)
@@ -485,7 +493,7 @@ export function useMemos(userId, { notify } = {}) {
   )
 
   const createMemo = useCallback(async () => {
-    if (!userId) return
+    if (!userId) return null
 
     const timestamp = nowIso()
     const minOrder = memosRef.current.reduce(
@@ -509,7 +517,7 @@ export function useMemos(userId, { notify } = {}) {
       await refreshPendingCount()
       setSyncStatus('pending')
       selectMemo(localMemo)
-      return
+      return localMemo
     }
 
     const { data, error } = await supabase
@@ -530,11 +538,12 @@ export function useMemos(userId, { notify } = {}) {
       await refreshPendingCount()
       setSyncStatus('pending')
       selectMemo(localMemo)
-      return
+      return localMemo
     }
 
     await persistMemos(applyLocalMemoChange(memosRef.current, data))
     selectMemo(data)
+    return data
   }, [userId, online, persistMemos, selectMemo, refreshPendingCount, t])
 
   const deleteMemo = useCallback(
@@ -643,6 +652,7 @@ export function useMemos(userId, { notify } = {}) {
   )
 
   const updateDraft = useCallback((field, value) => {
+    skipNextSaveRef.current = false
     clearSavedTimer()
     dirtyRef.current = true
     setSaveStatus('pending')
@@ -650,12 +660,14 @@ export function useMemos(userId, { notify } = {}) {
   }, [])
 
   useEffect(() => {
-    if (!activeId || !dirtyRef.current) return
+    if (!activeId) return
 
     if (skipNextSaveRef.current) {
       skipNextSaveRef.current = false
-      return
+      if (!dirtyRef.current) return
     }
+
+    if (!dirtyRef.current) return
 
     const timer = setTimeout(async () => {
       const snapshot = draftRef.current
@@ -752,6 +764,7 @@ export function useMemos(userId, { notify } = {}) {
     online,
     pendingCount,
     selectMemo,
+    clearMemoSelection,
     createMemo,
     deleteMemo,
     restoreMemo,

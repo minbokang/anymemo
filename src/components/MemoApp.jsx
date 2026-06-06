@@ -3,13 +3,14 @@ import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/I18nContext'
 import { useTheme } from '../context/ThemeContext'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
+import { useAppHistoryNav } from '../hooks/useAppHistoryNav'
 import { useMemos } from '../hooks/useMemos'
 import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick'
 import { useToast } from '../hooks/useToast'
 import { exportAllMemos, exportMemo } from '../lib/exportMemos'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { memoPreview } from '../lib/memoPreview'
-import { loadAppView, saveAppView } from '../lib/userPrefs'
+import { saveAppView } from '../lib/userPrefs'
 import ConfirmDialog from './ConfirmDialog'
 import HelpDialog from './HelpDialog'
 import HighlightText from './HighlightText'
@@ -181,7 +182,7 @@ function MemoListItem({
       <div
         className={`flex items-stretch rounded-lg ${
           isActive
-            ? 'bg-zinc-100 dark:bg-zinc-800'
+            ? 'bg-zinc-200 dark:bg-zinc-700'
             : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60'
         }`}
       >
@@ -274,7 +275,7 @@ export default function MemoApp() {
   const [deleting, setDeleting] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
-  const [appView, setAppViewState] = useState(loadAppView)
+  const [appView, setAppViewState] = useState('memos')
   const setAppView = useCallback((next) => {
     setAppViewState((prev) => {
       const value = typeof next === 'function' ? next(prev) : next
@@ -297,6 +298,7 @@ export default function MemoApp() {
     online,
     pendingCount,
     selectMemo,
+    clearMemoSelection,
     createMemo,
     deleteMemo,
     restoreMemo,
@@ -307,6 +309,33 @@ export default function MemoApp() {
     updateDraft,
     syncNow,
   } = useMemos(user?.id, { notify: showToast })
+
+  const selectMemoById = useCallback(
+    (id) => {
+      const memo = memos.find((m) => m.id === id)
+      if (memo) selectMemo(memo)
+    },
+    [memos, selectMemo],
+  )
+
+  const {
+    toggleStats,
+    closeStats,
+    toggleTrash,
+    navigateToMemo,
+    backToMemoList,
+  } = useAppHistoryNav({
+    appView,
+    mobilePane,
+    showTrash,
+    activeId,
+    memos,
+    setAppView,
+    setMobilePane,
+    setShowTrash,
+    selectMemoById,
+    clearMemoSelection,
+  })
 
   const dragIdRef = useRef(null)
   const [dragOverId, setDragOverId] = useState(null)
@@ -325,13 +354,12 @@ export default function MemoApp() {
   }, [memos, searchQuery])
 
   const handleSelectMemo = (memo) => {
-    selectMemo(memo)
-    setMobilePane('editor')
+    navigateToMemo(memo.id)
   }
 
   const handleCreateMemo = async () => {
-    await createMemo()
-    setMobilePane('editor')
+    const created = await createMemo()
+    if (created?.id) navigateToMemo(created.id)
   }
 
   const handleDeleteMemo = (memo) => setMemoToDelete(memo)
@@ -369,10 +397,10 @@ export default function MemoApp() {
         return
       }
       if (showTrash) {
-        setShowTrash(false)
+        toggleTrash()
         return
       }
-      setMobilePane('list')
+      backToMemoList()
     },
   })
 
@@ -420,7 +448,7 @@ export default function MemoApp() {
           </button>
           <button
             type="button"
-            onClick={() => setAppView((v) => (v === 'stats' ? 'memos' : 'stats'))}
+            onClick={toggleStats}
             className={`flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border active:bg-zinc-100 dark:active:bg-zinc-800 ${
               appView === 'stats'
                 ? 'border-zinc-400 bg-zinc-100 text-zinc-900 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-100'
@@ -460,7 +488,7 @@ export default function MemoApp() {
           memos={memos}
           trashMemos={trashMemos}
           loading={loading}
-          onBack={() => setAppView('memos')}
+          onBack={closeStats}
         />
       ) : (
       <div className="flex min-h-0 flex-1">
@@ -499,10 +527,7 @@ export default function MemoApp() {
             )}
             <button
               type="button"
-              onClick={() => {
-                setShowTrash((v) => !v)
-                setMobilePane('list')
-              }}
+              onClick={toggleTrash}
               className={`min-h-9 w-full rounded-lg border px-3 py-2 text-xs font-medium ${
                 showTrash
                   ? 'border-zinc-400 bg-zinc-100 text-zinc-800 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200'
@@ -645,7 +670,7 @@ export default function MemoApp() {
               <div className="flex min-w-0 shrink-0 items-center gap-2 border-b border-zinc-100 px-3 py-1.5 dark:border-zinc-800 md:hidden sm:px-4">
                 <button
                   type="button"
-                  onClick={() => setMobilePane('list')}
+                  onClick={backToMemoList}
                   className="inline-flex h-8 shrink-0 items-center rounded-lg px-2 text-sm font-medium leading-none text-zinc-600 active:bg-zinc-100 dark:text-zinc-300 dark:active:bg-zinc-800"
                   aria-label={t('list.backToListAria')}
                 >
