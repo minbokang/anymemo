@@ -8,6 +8,7 @@ import { useMemos } from '../hooks/useMemos'
 import { useRelativeTimeTick } from '../hooks/useRelativeTimeTick'
 import { useToast } from '../hooks/useToast'
 import { exportAllMemos, exportMemo } from '../lib/exportMemos'
+import { copyToClipboard } from '../lib/copyToClipboard'
 import { formatRelativeTime } from '../lib/formatRelativeTime'
 import { memoPreview } from '../lib/memoPreview'
 import { saveAppView } from '../lib/userPrefs'
@@ -364,6 +365,20 @@ export default function MemoApp() {
 
   const handleDeleteMemo = (memo) => setMemoToDelete(memo)
 
+  const handleCopyContent = useCallback(async () => {
+    const text = draft.content
+    if (!text) {
+      showToast(t('toast.copyEmpty'), 'info')
+      return
+    }
+    try {
+      await copyToClipboard(text)
+      showToast(t('toast.copySuccess'), 'info')
+    } catch {
+      showToast(t('toast.copyFailed'), 'error')
+    }
+  }, [draft.content, showToast, t])
+
   const confirmDeleteMemo = async () => {
     if (!memoToDelete || deleting) return
     setDeleting(true)
@@ -688,9 +703,10 @@ export default function MemoApp() {
               <MemoContentTextarea
                 value={draft.content}
                 onChange={(content) => updateDraft('content', content)}
-                className="min-h-0 flex-1 resize-none bg-white px-3 py-3 text-base leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4 sm:text-sm"
+                className="min-h-0 flex-1 resize-none select-text bg-white px-3 py-3 text-base leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-300 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-600 sm:px-4 sm:text-sm"
               />
               <MemoEditorFooter
+                onCopy={() => void handleCopyContent()}
                 pinned={activeMemo.pinned}
                 onDownload={() => exportMemo(activeMemo, 'md', locale)}
                 onDownloadAll={() => exportAllMemos(memos, 'md', locale)}

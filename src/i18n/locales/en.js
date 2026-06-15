@@ -177,6 +177,7 @@ export const en = {
     pinAction: 'Pin',
   },
   editor: {
+    copy: 'Copy body',
     download: 'Download',
     downloadAll: 'Download all',
     delete: 'Delete',
@@ -277,5 +278,8 @@ export const en = {
     restoreFailed: 'Restore failed.',
     permanentDeleteFailed: 'Permanent delete failed.',
     saveFailed: 'Save failed. Stored temporarily on this device.',
+    copySuccess: 'Body copied to clipboard.',
+    copyEmpty: 'Nothing to copy.',
+    copyFailed: 'Could not copy to clipboard.',
   },
 }

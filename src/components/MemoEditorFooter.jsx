@@ -13,6 +13,7 @@ function IconMoreVertical({ className = 'h-5 w-5' }) {
 }
 
 function EditorActionButtons({
+  onCopy,
   pinned,
   onDownload,
   onDownloadAll,
@@ -23,6 +24,13 @@ function EditorActionButtons({
   const { t } = useTranslation()
   return (
     <div className={`flex flex-wrap items-center justify-end gap-1 ${className}`}>
+      <button
+        type="button"
+        onClick={onCopy}
+        className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] text-zinc-600 dark:border-zinc-700 dark:text-zinc-400"
+      >
+        {t('editor.copy')}
+      </button>
       <button
         type="button"
         onClick={onDownload}
@@ -66,6 +74,7 @@ function EditorActionButtons({
 }
 
 export default function MemoEditorFooter({
+  onCopy,
   pinned,
   onDownload,
   onDownloadAll,
@@ -107,6 +116,7 @@ export default function MemoEditorFooter({
         </p>
 
         <EditorActionButtons
+            onCopy={onCopy}
             pinned={pinned}
             onDownload={onDownload}
             onDownloadAll={onDownloadAll}
@@ -131,6 +141,14 @@ export default function MemoEditorFooter({
                 role="menu"
                 className="absolute right-0 bottom-full z-20 mb-1 min-w-[11rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
               >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => runMenuAction(onCopy)}
+                  className="flex w-full px-3 py-2.5 text-left text-sm text-zinc-700 active:bg-zinc-100 dark:text-zinc-200 dark:active:bg-zinc-700"
+                >
+                  {t('editor.copy')}
+                </button>
                 <button
                   type="button"
                   role="menuitem"

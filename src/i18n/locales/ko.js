@@ -176,6 +176,7 @@ export const ko = {
     pinAction: '고정',
   },
   editor: {
+    copy: '본문 복사',
     download: '다운로드',
     downloadAll: '전체 다운로드',
     delete: '삭제',
@@ -277,5 +278,8 @@ export const ko = {
     restoreFailed: '복원에 실패했습니다.',
     permanentDeleteFailed: '영구 삭제에 실패했습니다.',
     saveFailed: '저장에 실패했습니다. 기기에 임시 저장했습니다.',
+    copySuccess: '본문을 복사했습니다.',
+    copyEmpty: '복사할 본문이 없습니다.',
+    copyFailed: '복사에 실패했습니다.',
   },
 }

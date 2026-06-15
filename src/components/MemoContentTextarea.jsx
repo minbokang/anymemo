@@ -125,7 +125,9 @@ export default function MemoContentTextarea({ value, onChange, className }) {
 
   const handleTextareaClick = (e) => {
     if (pickerOpen) return
-    const pos = e.currentTarget.selectionStart ?? value.length
+    const el = e.currentTarget
+    if (el.selectionStart !== el.selectionEnd) return
+    const pos = el.selectionStart ?? value.length
     syncTriggers(value, pos)
   }
 
