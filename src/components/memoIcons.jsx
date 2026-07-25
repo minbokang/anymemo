@@ -70,21 +70,9 @@ export function IconReorder({ className = 'h-4 w-4' }) {
   )
 }
 
-/** Unpinned: head + needle. Pinned: head only (pin pushed in). */
+/** Circle only — muted when unpinned, rose when pinned. */
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
-  if (pinned) {
-    return (
-      <svg
-        className={className}
-        viewBox="0 0 20 20"
-        fill="none"
-        aria-hidden
-      >
-        <circle cx="10" cy="10" r="3.25" fill="currentColor" />
-      </svg>
-    )
-  }
-
+  void pinned
   return (
     <svg
       className={className}
@@ -92,13 +80,7 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
       fill="none"
       aria-hidden
     >
-      <path
-        d="M13.2 6.8L8.4 13.2"
-        stroke="currentColor"
-        strokeWidth="0.5"
-        strokeLinecap="round"
-      />
-      <circle cx="13.85" cy="5.35" r="2.35" fill="currentColor" />
+      <circle cx="10" cy="10" r="3.25" fill="currentColor" />
     </svg>
   )
 }
