@@ -83,7 +83,7 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
       <path
         d="M13.2 6.8L6.2 16.4"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="0.5"
         strokeLinecap="round"
       />
       {/* head */}
