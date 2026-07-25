@@ -88,7 +88,8 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
       >
         <ellipse cx="10" cy="4.6" rx="3.5" ry="2.7" />
         <rect x="7.3" y="5.6" width="5.4" height="4" rx="0.7" />
-        <path d="M10 9.6L8.15 17.4h3.7L10 9.6z" />
+        {/* tip at bottom */}
+        <path d="M8.15 9.6h3.7L10 17.4z" />
       </g>
     </svg>
   )
