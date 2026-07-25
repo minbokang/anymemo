@@ -86,14 +86,12 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
         strokeWidth="0.5"
         strokeLinecap="round"
       />
-      {/* head */}
+      {/* head — always filled; pinned vs not is color via pinIconClass */}
       <circle
         cx="13.85"
         cy="5.35"
         r="2.35"
-        fill={pinned ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth="1.5"
+        fill="currentColor"
       />
     </svg>
   )
