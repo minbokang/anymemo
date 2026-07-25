@@ -1,16 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '../context/I18nContext'
-import { IconPin, pinIconClass } from './memoIcons'
-
-function IconMoreVertical({ className = 'h-5 w-5' }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-      <circle cx="10" cy="4" r="1.5" />
-      <circle cx="10" cy="10" r="1.5" />
-      <circle cx="10" cy="16" r="1.5" />
-    </svg>
-  )
-}
+import { IconPin, IconMoreVertical, pinIconClass } from './memoIcons'
 
 function EditorActionButtons({
   onCopy,

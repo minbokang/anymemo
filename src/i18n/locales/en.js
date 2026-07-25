@@ -103,6 +103,7 @@ export const en = {
     statsTitle: 'Stats',
     help: 'Help',
     helpTitle: 'Help',
+    moreMenuAria: 'More options',
   },
   help: {
     title: 'Help',

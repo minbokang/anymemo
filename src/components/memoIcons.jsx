@@ -41,6 +41,16 @@ export function IconChart({ className = 'h-4 w-4' }) {
   )
 }
 
+export function IconMoreVertical({ className = 'h-5 w-5' }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+      <circle cx="10" cy="4" r="1.5" />
+      <circle cx="10" cy="10" r="1.5" />
+      <circle cx="10" cy="16" r="1.5" />
+    </svg>
+  )
+}
+
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="none" aria-hidden>

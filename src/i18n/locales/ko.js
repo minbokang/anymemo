@@ -103,6 +103,7 @@ export const ko = {
     statsTitle: '통계',
     help: '도움말',
     helpTitle: '도움말',
+    moreMenuAria: '더보기 메뉴',
   },
   help: {
     title: '도움말',

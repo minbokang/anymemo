@@ -18,7 +18,7 @@ import HighlightText from './HighlightText'
 import InstallPrompt from './InstallPrompt'
 import MemoContentTextarea from './MemoContentTextarea'
 import MemoEditorFooter from './MemoEditorFooter'
-import { IconChart, IconHelp, IconPin, pinIconClass } from './memoIcons'
+import { IconChart, IconHelp, IconMoreVertical, IconPin, pinIconClass } from './memoIcons'
 import StatsPage from './StatsPage'
 import Toast from './Toast'
 
@@ -148,6 +148,92 @@ function SyncIndicator({ online, syncStatus, pendingCount, onSync }) {
     >
       {label}
     </button>
+  )
+}
+
+function HeaderMoreMenu({
+  appView,
+  isDark,
+  onHelp,
+  onToggleStats,
+  onToggleTheme,
+  onSignOut,
+}) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const close = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
+  }, [open])
+
+  const run = (fn) => {
+    setOpen(false)
+    fn()
+  }
+
+  const itemClass =
+    'flex w-full px-3 py-2.5 text-left text-sm text-zinc-700 active:bg-zinc-100 dark:text-zinc-200 dark:active:bg-zinc-700'
+
+  return (
+    <div className="relative md:hidden" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
+        aria-label={t('nav.moreMenuAria')}
+        aria-expanded={open}
+        aria-haspopup="menu"
+      >
+        <IconMoreVertical className="h-4 w-4" />
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-30 mt-1 min-w-[11rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => run(onHelp)}
+            className={itemClass}
+          >
+            {t('nav.help')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => run(onToggleStats)}
+            className={itemClass}
+          >
+            {appView === 'stats' ? t('nav.backToMemos') : t('nav.stats')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => run(onToggleTheme)}
+            className={itemClass}
+          >
+            {isDark ? t('theme.lightMode') : t('theme.darkMode')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => run(onSignOut)}
+            className={`${itemClass} text-red-600 dark:text-red-400`}
+          >
+            {t('auth.signOut')}
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -471,7 +557,7 @@ export default function MemoApp() {
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
-            className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
+            className="hidden min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 md:flex dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
             aria-label={t('nav.help')}
             title={t('nav.helpTitle')}
           >
@@ -480,7 +566,7 @@ export default function MemoApp() {
           <button
             type="button"
             onClick={toggleStats}
-            className={`flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border active:bg-zinc-100 dark:active:bg-zinc-800 ${
+            className={`hidden min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border active:bg-zinc-100 md:flex dark:active:bg-zinc-800 ${
               appView === 'stats'
                 ? 'border-zinc-400 bg-zinc-100 text-zinc-900 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-100'
                 : 'border-zinc-300 text-zinc-600 dark:border-zinc-600 dark:text-zinc-400'
@@ -498,7 +584,7 @@ export default function MemoApp() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
+            className="hidden min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 active:bg-zinc-100 md:flex dark:border-zinc-600 dark:text-zinc-400 dark:active:bg-zinc-800"
             aria-label={isDark ? t('theme.lightMode') : t('theme.darkMode')}
             title={isDark ? t('theme.lightMode') : t('theme.darkMode')}
           >
@@ -507,10 +593,18 @@ export default function MemoApp() {
           <button
             type="button"
             onClick={() => signOut()}
-            className="min-h-9 shrink-0 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs text-zinc-700 active:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:active:bg-zinc-800 sm:px-3"
+            className="hidden min-h-9 shrink-0 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs text-zinc-700 active:bg-zinc-100 md:inline-flex md:items-center dark:border-zinc-600 dark:text-zinc-300 dark:active:bg-zinc-800 sm:px-3"
           >
             {t('auth.signOut')}
           </button>
+          <HeaderMoreMenu
+            appView={appView}
+            isDark={isDark}
+            onHelp={() => setHelpOpen(true)}
+            onToggleStats={toggleStats}
+            onToggleTheme={toggleTheme}
+            onSignOut={() => void signOut()}
+          />
         </div>
       </header>
 
