@@ -70,7 +70,7 @@ export function IconReorder({ className = 'h-4 w-4' }) {
   )
 }
 
-/** Classic diagonal thumbtack — solid when pinned, outline when not */
+/** Minimal diagonal pin — ring head outline / solid head when pinned */
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
   return (
     <svg
@@ -79,18 +79,22 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
       fill="none"
       aria-hidden
     >
-      <g
-        transform="rotate(-40 10 10)"
+      {/* shaft + tip */}
+      <path
+        d="M13.2 6.8L6.2 16.4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      {/* head */}
+      <circle
+        cx="13.85"
+        cy="5.35"
+        r="2.35"
         fill={pinned ? 'currentColor' : 'none'}
         stroke="currentColor"
-        strokeWidth={pinned ? 0 : 1.2}
-        strokeLinejoin="round"
-      >
-        <ellipse cx="10" cy="4.6" rx="3.5" ry="2.7" />
-        <rect x="7.3" y="5.6" width="5.4" height="4" rx="0.7" />
-        {/* tip at bottom */}
-        <path d="M8.15 9.6h3.7L10 17.4z" />
-      </g>
+        strokeWidth="1.5"
+      />
     </svg>
   )
 }
