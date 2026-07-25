@@ -42,13 +42,13 @@ function EditorActionButtons({
         title={pinned ? t('pin.unpin') : t('pin.pin')}
         className={`inline-flex h-7 min-w-[3.5rem] items-center justify-center gap-1 rounded-md border px-2 text-[11px] font-medium leading-none whitespace-nowrap active:bg-zinc-50 dark:active:bg-zinc-800 ${
           pinned
-            ? 'border-red-200 text-red-700 dark:border-red-900/60 dark:text-red-400'
+            ? 'border-rose-200 text-rose-600 dark:border-rose-900/60 dark:text-rose-400'
             : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
         }`}
       >
         <IconPin
           pinned={pinned}
-          className={`h-3 w-3 shrink-0 ${pinIconClass(pinned)}`}
+          className={`h-3.5 w-3.5 shrink-0 ${pinIconClass(pinned)}`}
         />
         {pinned ? t('pin.pinned') : t('pin.pinAction')}
       </button>

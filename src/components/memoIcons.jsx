@@ -70,23 +70,47 @@ export function IconReorder({ className = 'h-4 w-4' }) {
   )
 }
 
+/** Pushpin — outline when unpinned, filled when pinned */
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
   return (
-    <svg className={className} viewBox="0 0 20 20" fill="none" aria-hidden>
-      <circle
-        cx="10"
-        cy="10"
-        r={pinned ? 4.5 : 4}
-        fill={pinned ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth={pinned ? 0 : 0.5}
-      />
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden
+    >
+      {pinned ? (
+        <>
+          <path
+            fill="currentColor"
+            d="M10 2.25a4.25 4.25 0 00-2.55 7.65l.8 6.85a.75.75 0 001.5 0l.8-6.85A4.25 4.25 0 0010 2.25z"
+          />
+          <circle cx="10" cy="6.25" r="1.35" fill="white" fillOpacity="0.9" />
+        </>
+      ) : (
+        <>
+          <path
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M10 2.75a3.75 3.75 0 00-2.2 6.8l.7 6.2a.75.75 0 001.5 0l.7-6.2A3.75 3.75 0 0010 2.75z"
+          />
+          <circle
+            cx="10"
+            cy="6.25"
+            r="1.15"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
+        </>
+      )}
     </svg>
   )
 }
 
 export function pinIconClass(pinned) {
   return pinned
-    ? 'text-red-600 dark:text-red-500'
-    : 'text-zinc-500 dark:text-zinc-400'
+    ? 'text-rose-500 dark:text-rose-400'
+    : 'text-zinc-400 dark:text-zinc-500'
 }
