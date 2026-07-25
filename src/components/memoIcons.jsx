@@ -70,8 +70,21 @@ export function IconReorder({ className = 'h-4 w-4' }) {
   )
 }
 
-/** Minimal diagonal pin — ring head outline / solid head when pinned */
+/** Unpinned: head + needle. Pinned: head only (pin pushed in). */
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
+  if (pinned) {
+    return (
+      <svg
+        className={className}
+        viewBox="0 0 20 20"
+        fill="none"
+        aria-hidden
+      >
+        <circle cx="10" cy="10" r="3.25" fill="currentColor" />
+      </svg>
+    )
+  }
+
   return (
     <svg
       className={className}
@@ -79,20 +92,13 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
       fill="none"
       aria-hidden
     >
-      {/* shaft + tip */}
       <path
-        d="M13.2 6.8L6.2 16.4"
+        d="M13.2 6.8L8.4 13.2"
         stroke="currentColor"
         strokeWidth="0.5"
         strokeLinecap="round"
       />
-      {/* head — always filled; pinned vs not is color via pinIconClass */}
-      <circle
-        cx="13.85"
-        cy="5.35"
-        r="2.35"
-        fill="currentColor"
-      />
+      <circle cx="13.85" cy="5.35" r="2.35" fill="currentColor" />
     </svg>
   )
 }
