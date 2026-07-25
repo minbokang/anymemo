@@ -7,15 +7,15 @@ Deploy the Vite + React + Supabase memo app in order: **web → desktop (Tauri) 
 | Stage | Platform | Status |
 |-------|----------|--------|
 | 1 | Web + PWA (Vercel) | ✅ Live: https://anymemo.vercel.app |
-| 2 | Windows / macOS (Tauri v2) | ✅ macOS v0.1.0 [GitHub Release](https://github.com/minbokang/anymemo/releases/tag/v0.1.0) |
+| 2 | Windows / macOS (Tauri v2) | ✅ macOS v0.1.1 [GitHub Release](https://github.com/minbokang/anymemo/releases/tag/v0.1.1) |
 | 3 | App Store / Play Store (Capacitor) | ⏸️ Planned later |
 
-### Downloads (v0.1.0)
+### Downloads (v0.1.1)
 
 | OS | Installers |
 |----|------------|
-| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
-| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
+| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_macos_aarch64.zip) |
+| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64-setup.exe) |
 
 ---
 
@@ -128,7 +128,7 @@ npx tauri icon public/favicon.svg
 Typical flow without App Store / Microsoft Store:
 
 1. **GitHub Releases** (recommended)
-   - Create tag `v0.1.0`
+   - Create tag `v0.1.1`
    - Upload `.dmg` / `.msi` from `bundle/`
    - Note macOS vs Windows in release notes
 2. **Download page**

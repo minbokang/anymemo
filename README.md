@@ -30,12 +30,12 @@ AnyMemo는 **웹·모바일(PWA)·데스크톱**에서 같은 계정으로 메�
 | **데모 (웹)** | https://anymemo.vercel.app |
 | **문서** | [배포.md](./배포.md) · [DEPLOY.md](./DEPLOY.md) |
 
-### 다운로드 (v0.1.0)
+### 다운로드 (v0.1.1)
 
 | OS | 설치 파일 |
 |----|-----------|
-| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
-| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
+| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_macos_aarch64.zip) |
+| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64-setup.exe) |
 
 ---
 
@@ -64,12 +64,12 @@ I built AnyMemo because I could not find a **simple** memo app that works on **W
 | **Web demo** | https://anymemo.vercel.app |
 | **Deploy notes** | [DEPLOY.md](./DEPLOY.md) · [배포.md](./배포.md) |
 
-### Downloads (v0.1.0)
+### Downloads (v0.1.1)
 
 | OS | Installers |
 |----|------------|
-| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip) |
-| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe) |
+| **macOS** (Apple Silicon) | [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_macos_aarch64.zip) |
+| **Windows** (x64) | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64-setup.exe) |
 
 ### Platforms
 
@@ -78,7 +78,7 @@ I built AnyMemo because I could not find a **simple** memo app that works on **W
 | Web | ✅ | Vercel |
 | PWA (iOS / Android) | ✅ | Add to Home Screen in Safari / Chrome |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — Apple Silicon |
-| Windows (Tauri) | ✅ | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) (GitHub Actions) |
+| Windows (Tauri) | ✅ | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64_en-US.msi) (GitHub Actions) |
 | App Store / Play | ⏸️ | Capacitor later; use PWA for now |
 
 ### Quick start
@@ -137,7 +137,7 @@ This project is licensed under the [MIT License](./LICENSE). You may fork and re
 | 웹 브라우저 | ✅ | Vercel 배포 |
 | PWA (iOS / Android) | ✅ | 브라우저 「홈 화면에 추가」 |
 | macOS (Tauri) | ✅ | [GitHub Releases](https://github.com/minbokang/anymemo/releases) — 현재 Apple Silicon 빌드 |
-| Windows (Tauri) | ✅ | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) (GitHub Actions) |
+| Windows (Tauri) | ✅ | [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64_en-US.msi) (GitHub Actions) |
 | App Store / Play Store | ⏸️ | 추후 Capacitor ([DEPLOY.md](./DEPLOY.md) stage 3) |
 
 ---
@@ -317,8 +317,8 @@ flowchart LR
 
 **설치 파일 위치**
 
-- **macOS** — [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_macos_aarch64.zip)
-- **Windows** — [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.0/AnyMemo_0.1.0_x64-setup.exe)
+- **macOS** — [DMG](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_aarch64.dmg) · [ZIP](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_macos_aarch64.zip)
+- **Windows** — [MSI](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64_en-US.msi) · [EXE](https://github.com/minbokang/anymemo/releases/download/v0.1.1/AnyMemo_0.1.1_x64-setup.exe)
 - **Vercel** — 웹만 (`dist/`). 설치 파일은 호스팅하지 않음
 
 ---

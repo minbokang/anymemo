@@ -1,6 +1,6 @@
 const DEFAULT_APP_URL = 'https://anymemo.vercel.app'
 const DEFAULT_GITHUB_REPO = 'minbokang/anymemo'
-const DEFAULT_RELEASE_TAG = 'v0.1.0'
+const DEFAULT_RELEASE_TAG = 'v0.1.1'
 
 function releaseAssetUrl(filename) {
   return `https://github.com/${DEFAULT_GITHUB_REPO}/releases/download/${DEFAULT_RELEASE_TAG}/${filename}`
@@ -42,14 +42,14 @@ export function getPlatformInstallLinks() {
   const macDownload =
     import.meta.env.VITE_DOWNLOAD_MAC_DMG?.trim() ||
     import.meta.env.VITE_DOWNLOAD_MAC?.trim() ||
-    releaseAssetUrl('AnyMemo_0.1.0_aarch64.dmg')
+    releaseAssetUrl('AnyMemo_0.1.1_aarch64.dmg')
 
-  const macZip = releaseAssetUrl('AnyMemo_0.1.0_macos_aarch64.zip')
+  const macZip = releaseAssetUrl('AnyMemo_0.1.1_macos_aarch64.zip')
 
   const windowsDownload =
     import.meta.env.VITE_DOWNLOAD_WINDOWS_MSI?.trim() ||
     import.meta.env.VITE_DOWNLOAD_WINDOWS?.trim() ||
-    releaseAssetUrl('AnyMemo_0.1.0_x64_en-US.msi')
+    releaseAssetUrl('AnyMemo_0.1.1_x64_en-US.msi')
 
   return {
     appUrl,
