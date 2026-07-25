@@ -70,7 +70,7 @@ export function IconReorder({ className = 'h-4 w-4' }) {
   )
 }
 
-/** Pushpin — outline when unpinned, filled when pinned */
+/** Classic diagonal thumbtack — solid when pinned, outline when not */
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
   return (
     <svg
@@ -79,32 +79,17 @@ export function IconPin({ pinned, className = 'h-4 w-4' }) {
       fill="none"
       aria-hidden
     >
-      {pinned ? (
-        <>
-          <path
-            fill="currentColor"
-            d="M10 2.25a4.25 4.25 0 00-2.55 7.65l.8 6.85a.75.75 0 001.5 0l.8-6.85A4.25 4.25 0 0010 2.25z"
-          />
-          <circle cx="10" cy="6.25" r="1.35" fill="white" fillOpacity="0.9" />
-        </>
-      ) : (
-        <>
-          <path
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M10 2.75a3.75 3.75 0 00-2.2 6.8l.7 6.2a.75.75 0 001.5 0l.7-6.2A3.75 3.75 0 0010 2.75z"
-          />
-          <circle
-            cx="10"
-            cy="6.25"
-            r="1.15"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          />
-        </>
-      )}
+      <g
+        transform="rotate(-40 10 10)"
+        fill={pinned ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth={pinned ? 0 : 1.2}
+        strokeLinejoin="round"
+      >
+        <ellipse cx="10" cy="4.6" rx="3.5" ry="2.7" />
+        <rect x="7.3" y="5.6" width="5.4" height="4" rx="0.7" />
+        <path d="M10 9.6L8.15 17.4h3.7L10 9.6z" />
+      </g>
     </svg>
   )
 }
