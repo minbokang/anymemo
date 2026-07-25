@@ -246,6 +246,7 @@ function MemoListItem({
   searchActive,
   searchQuery,
   timeTick,
+  showMobileReorder,
   onSelect,
   onTogglePin,
   onMoveUp,
@@ -306,32 +307,34 @@ function MemoListItem({
             {formatRelativeTime(memo.updated_at, locale)}
           </p>
         </button>
-        <div className="flex shrink-0 flex-col justify-center border-l border-zinc-100 dark:border-zinc-700 md:hidden">
-          <button
-            type="button"
-            disabled={index === 0 || searchActive}
-            onClick={(e) => {
-              e.stopPropagation()
-              onMoveUp()
-            }}
-            className="flex h-8 w-9 items-center justify-center text-xs text-zinc-400 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-500 dark:active:bg-zinc-700"
-            aria-label={t('reorder.moveUp')}
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            disabled={index === total - 1 || searchActive}
-            onClick={(e) => {
-              e.stopPropagation()
-              onMoveDown()
-            }}
-            className="flex h-8 w-9 items-center justify-center text-xs text-zinc-400 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-500 dark:active:bg-zinc-700"
-            aria-label={t('reorder.moveDown')}
-          >
-            ↓
-          </button>
-        </div>
+        {showMobileReorder && (
+          <div className="flex shrink-0 flex-col justify-center border-l border-zinc-100 dark:border-zinc-700 md:hidden">
+            <button
+              type="button"
+              disabled={index === 0 || searchActive}
+              onClick={(e) => {
+                e.stopPropagation()
+                onMoveUp()
+              }}
+              className="flex h-8 w-9 items-center justify-center text-xs text-zinc-400 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-500 dark:active:bg-zinc-700"
+              aria-label={t('reorder.moveUp')}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              disabled={index === total - 1 || searchActive}
+              onClick={(e) => {
+                e.stopPropagation()
+                onMoveDown()
+              }}
+              className="flex h-8 w-9 items-center justify-center text-xs text-zinc-400 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-500 dark:active:bg-zinc-700"
+              aria-label={t('reorder.moveDown')}
+            >
+              ↓
+            </button>
+          </div>
+        )}
         <button
           type="button"
           onClick={(e) => {
@@ -364,6 +367,7 @@ export default function MemoApp() {
   const [helpOpen, setHelpOpen] = useState(false)
   const [accountDeleteOpen, setAccountDeleteOpen] = useState(false)
   const [deletingAccount, setDeletingAccount] = useState(false)
+  const [reorderMode, setReorderMode] = useState(false)
   const [appView, setAppViewState] = useState('memos')
   const setAppView = useCallback((next) => {
     setAppViewState((prev) => {
@@ -431,6 +435,10 @@ export default function MemoApp() {
 
   const activeMemo = memos.find((m) => m.id === activeId)
   const searchActive = searchQuery.trim().length > 0
+
+  useEffect(() => {
+    if (showTrash || searchActive) setReorderMode(false)
+  }, [showTrash, searchActive])
 
   const filteredMemos = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -650,21 +658,43 @@ export default function MemoApp() {
                 {t('memo.new')}
               </button>
             )}
-            <button
-              type="button"
-              onClick={toggleTrash}
-              className={`min-h-9 w-full rounded-lg border px-3 py-2 text-xs font-medium ${
-                showTrash
-                  ? 'border-zinc-400 bg-zinc-100 text-zinc-800 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200'
-                  : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
-              }`}
-            >
-              {showTrash
-                ? t('trash.backToList')
-                : trashMemos.length > 0
-                  ? t('trash.toggleWithCount', { count: trashMemos.length })
-                  : t('trash.toggle')}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={toggleTrash}
+                className={`min-h-9 min-w-0 flex-1 rounded-lg border px-3 py-2 text-xs font-medium ${
+                  showTrash
+                    ? 'border-zinc-400 bg-zinc-100 text-zinc-800 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200'
+                    : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
+                }`}
+              >
+                {showTrash
+                  ? t('trash.backToList')
+                  : trashMemos.length > 0
+                    ? t('trash.toggleWithCount', { count: trashMemos.length })
+                    : t('trash.toggle')}
+              </button>
+              {!showTrash && memos.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setReorderMode((v) => !v)}
+                  disabled={searchActive}
+                  className={`min-h-9 shrink-0 rounded-lg border px-3 py-2 text-xs font-medium md:hidden disabled:opacity-40 ${
+                    reorderMode
+                      ? 'border-zinc-400 bg-zinc-100 text-zinc-800 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200'
+                      : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
+                  }`}
+                  aria-pressed={reorderMode}
+                >
+                  {reorderMode ? t('reorder.modeDone') : t('reorder.mode')}
+                </button>
+              )}
+            </div>
+            {reorderMode && !showTrash && (
+              <p className="px-0.5 text-[11px] leading-snug text-zinc-400 md:hidden dark:text-zinc-500">
+                {t('reorder.modeHint')}
+              </p>
+            )}
           </div>
 
           <ul className="flex-1 overflow-y-auto overscroll-contain p-2 sm:p-3">
@@ -738,6 +768,7 @@ export default function MemoApp() {
                 searchActive={searchActive}
                 searchQuery={searchQuery}
                 timeTick={timeTick}
+                showMobileReorder={reorderMode}
                 onSelect={() => handleSelectMemo(memo)}
                 onTogglePin={() => togglePin(memo.id)}
                 onMoveUp={() => moveMemo(memo.id, 'up')}

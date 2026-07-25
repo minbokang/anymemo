@@ -197,6 +197,9 @@ export const ko = {
     dragHint: '드래그하여 순서 변경',
     moveUp: '위로',
     moveDown: '아래로',
+    mode: '순서 변경',
+    modeDone: '완료',
+    modeHint: '↑↓로 순서를 바꾼 뒤 완료를 누르세요. 검색 중에는 사용할 수 없습니다.',
   },
   pin: {
     pin: '상단 고정',

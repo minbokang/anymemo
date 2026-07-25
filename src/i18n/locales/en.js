@@ -198,6 +198,9 @@ export const en = {
     dragHint: 'Drag to change order',
     moveUp: 'Move up',
     moveDown: 'Move down',
+    mode: 'Reorder',
+    modeDone: 'Done',
+    modeHint: 'Use ↑↓ to change order, then tap Done. Unavailable while searching.',
   },
   pin: {
     pin: 'Pin to top',
