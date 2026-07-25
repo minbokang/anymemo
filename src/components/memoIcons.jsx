@@ -51,6 +51,25 @@ export function IconMoreVertical({ className = 'h-5 w-5' }) {
   )
 }
 
+export function IconReorder({ className = 'h-4 w-4' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 8.5L10 4.5l4 4M6 11.5l4 4 4-4"
+      />
+    </svg>
+  )
+}
+
 export function IconPin({ pinned, className = 'h-4 w-4' }) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="none" aria-hidden>

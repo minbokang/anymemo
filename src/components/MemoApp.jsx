@@ -18,7 +18,7 @@ import HighlightText from './HighlightText'
 import InstallPrompt from './InstallPrompt'
 import MemoContentTextarea from './MemoContentTextarea'
 import MemoEditorFooter from './MemoEditorFooter'
-import { IconChart, IconHelp, IconMoreVertical, IconPin, pinIconClass } from './memoIcons'
+import { IconChart, IconHelp, IconMoreVertical, IconPin, IconReorder, pinIconClass } from './memoIcons'
 import StatsPage from './StatsPage'
 import Toast from './Toast'
 
@@ -679,13 +679,14 @@ export default function MemoApp() {
                   type="button"
                   onClick={() => setReorderMode((v) => !v)}
                   disabled={searchActive}
-                  className={`min-h-9 shrink-0 rounded-lg border px-3 py-2 text-xs font-medium md:hidden disabled:opacity-40 ${
+                  className={`inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-xs font-medium md:hidden disabled:opacity-40 ${
                     reorderMode
                       ? 'border-zinc-400 bg-zinc-100 text-zinc-800 dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200'
                       : 'border-zinc-200 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400'
                   }`}
                   aria-pressed={reorderMode}
                 >
+                  <IconReorder className="h-3.5 w-3.5 shrink-0" />
                   {reorderMode ? t('reorder.modeDone') : t('reorder.mode')}
                 </button>
               )}
