@@ -179,16 +179,22 @@ export function useAppHistoryNav({
     if (fromHash.memoId && memos.some((m) => m.id === fromHash.memoId)) {
       if (fromHash.memoId !== activeId) {
         selectMemoById(fromHash.memoId)
-        if (isMobileAppLayout()) setMobilePane('editor')
+      }
+      if (isMobileAppLayout() && mobilePane !== 'editor') {
+        setMobilePane('editor')
       }
       return
     }
+
+    // 해시 없이 메모만 선택된 경우 URL 맞춤 (새 메모 등).
+    // 모바일 목록 화면에서는 에디터로 강제 이동하지 않음.
     if (
       activeId &&
       appView === 'memos' &&
       window.location.hash !== `#m/${activeId}` &&
       !fromHash.memoId
     ) {
+      if (isMobileAppLayout() && mobilePane === 'list') return
       replaceNav(memoNav(activeId))
     }
   }, [
@@ -196,6 +202,7 @@ export function useAppHistoryNav({
     activeId,
     appView,
     showTrash,
+    mobilePane,
     selectMemoById,
     setMobilePane,
     replaceNav,
@@ -204,30 +211,18 @@ export function useAppHistoryNav({
   const navigateToMemo = useCallback(
     (memoId) => {
       if (!memoId) return
-      const mobile = isMobileAppLayout()
       const hash = `#m/${memoId}`
-      // 모바일 목록에서 이미 선택된 메모를 다시 탭해도 에디터로 진입
-      if (
-        mobile &&
-        mobilePane === 'list' &&
-        activeId === memoId &&
-        window.location.hash === hash &&
-        !showTrash
-      ) {
-        setMobilePane('editor')
-        return
-      }
       if (
         activeId === memoId &&
         window.location.hash === hash &&
         !showTrash &&
-        (!mobile || mobilePane === 'editor')
+        (!isMobileAppLayout() || mobilePane === 'editor')
       ) {
         return
       }
       pushNav(memoNav(memoId))
     },
-    [activeId, showTrash, mobilePane, setMobilePane, pushNav],
+    [activeId, showTrash, mobilePane, pushNav],
   )
 
   const openStats = useCallback(() => {
@@ -258,9 +253,10 @@ export function useAppHistoryNav({
 
   const backToMemoList = useCallback(() => {
     if (!isMobileAppLayout()) return
-    if (mobilePane === 'editor') history.back()
-    else replaceNav({ view: 'memos', pane: 'list', memoId: null })
-  }, [mobilePane, replaceNav])
+    // history.back()에 의존하지 않음 — 목록 히스토리가 없거나
+    // activeId 동기화가 다시 에디터로 끌어올리는 문제를 피함
+    replaceNav({ view: 'memos', pane: 'list', memoId: null })
+  }, [replaceNav])
 
   return {
     openStats,
