@@ -200,36 +200,10 @@ function MemoListItem({
         >
           ⠿
         </button>
-        <div className="flex shrink-0 flex-col border-r border-zinc-100 dark:border-zinc-700 md:hidden">
-          <button
-            type="button"
-            disabled={index === 0 || searchActive}
-            onClick={(e) => {
-              e.stopPropagation()
-              onMoveUp()
-            }}
-            className="min-h-9 flex-1 px-2 text-xs text-zinc-500 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-400 dark:active:bg-zinc-700"
-            aria-label={t('reorder.moveUp')}
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            disabled={index === total - 1 || searchActive}
-            onClick={(e) => {
-              e.stopPropagation()
-              onMoveDown()
-            }}
-            className="min-h-9 flex-1 px-2 text-xs text-zinc-500 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-400 dark:active:bg-zinc-700"
-            aria-label={t('reorder.moveDown')}
-          >
-            ↓
-          </button>
-        </div>
         <button
           type="button"
           onClick={onSelect}
-          className="min-h-11 min-w-0 flex-1 px-3 py-3 text-left active:bg-zinc-100 dark:active:bg-zinc-700"
+          className="min-h-12 min-w-0 flex-1 px-3 py-3 text-left active:bg-zinc-100/80 dark:active:bg-zinc-700/80 sm:min-h-11"
         >
           <p className="truncate text-base font-medium text-zinc-800 dark:text-zinc-100 sm:text-sm">
             <HighlightText
@@ -246,13 +220,39 @@ function MemoListItem({
             {formatRelativeTime(memo.updated_at, locale)}
           </p>
         </button>
+        <div className="flex shrink-0 flex-col justify-center border-l border-zinc-100 dark:border-zinc-700 md:hidden">
+          <button
+            type="button"
+            disabled={index === 0 || searchActive}
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveUp()
+            }}
+            className="flex h-8 w-9 items-center justify-center text-xs text-zinc-400 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-500 dark:active:bg-zinc-700"
+            aria-label={t('reorder.moveUp')}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            disabled={index === total - 1 || searchActive}
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveDown()
+            }}
+            className="flex h-8 w-9 items-center justify-center text-xs text-zinc-400 disabled:opacity-30 active:bg-zinc-100 dark:text-zinc-500 dark:active:bg-zinc-700"
+            aria-label={t('reorder.moveDown')}
+          >
+            ↓
+          </button>
+        </div>
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation()
             onTogglePin()
           }}
-          className="flex min-h-11 w-11 shrink-0 items-center justify-center active:bg-zinc-100 dark:active:bg-zinc-700"
+          className="flex min-h-12 w-11 shrink-0 items-center justify-center active:bg-zinc-100 dark:active:bg-zinc-700 sm:min-h-11"
           aria-label={memo.pinned ? t('pin.unpin') : t('pin.pin')}
           title={memo.pinned ? t('pin.unpin') : t('pin.pin')}
         >

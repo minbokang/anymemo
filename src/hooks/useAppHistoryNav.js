@@ -204,17 +204,30 @@ export function useAppHistoryNav({
   const navigateToMemo = useCallback(
     (memoId) => {
       if (!memoId) return
+      const mobile = isMobileAppLayout()
       const hash = `#m/${memoId}`
+      // 모바일 목록에서 이미 선택된 메모를 다시 탭해도 에디터로 진입
       if (
+        mobile &&
+        mobilePane === 'list' &&
         activeId === memoId &&
         window.location.hash === hash &&
         !showTrash
+      ) {
+        setMobilePane('editor')
+        return
+      }
+      if (
+        activeId === memoId &&
+        window.location.hash === hash &&
+        !showTrash &&
+        (!mobile || mobilePane === 'editor')
       ) {
         return
       }
       pushNav(memoNav(memoId))
     },
-    [activeId, showTrash, pushNav],
+    [activeId, showTrash, mobilePane, setMobilePane, pushNav],
   )
 
   const openStats = useCallback(() => {
