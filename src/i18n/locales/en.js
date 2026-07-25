@@ -144,6 +144,17 @@ export const en = {
     sectionLang: 'Language',
     langBody:
       'Choose Korean or English on the sign-in screen (top right) after signing out.',
+    sectionAccount: 'Account',
+    accountBody:
+      'Sign out from the header. Deleting your account removes your account and all memos stored on the server and cannot be undone. Export first if you need a copy.',
+  },
+  account: {
+    delete: 'Delete account',
+    deleteTitle: 'Delete your account?',
+    deleteDescription:
+      'Your account and all memos on the server (including Trash) will be permanently deleted. Export anything important first.',
+    deleteConfirm: 'Delete account',
+    deleteFailed: 'Could not delete the account. Please try again later.',
   },
   theme: {
     lightMode: 'Light mode',

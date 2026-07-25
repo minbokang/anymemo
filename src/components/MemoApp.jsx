@@ -267,7 +267,7 @@ function MemoListItem({
 }
 
 export default function MemoApp() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, deleteAccount } = useAuth()
   const { t, locale } = useTranslation()
   const { isDark, toggleTheme } = useTheme()
   const [mobilePane, setMobilePane] = useState('list')
@@ -276,6 +276,8 @@ export default function MemoApp() {
   const [deleting, setDeleting] = useState(false)
   const [showTrash, setShowTrash] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
+  const [accountDeleteOpen, setAccountDeleteOpen] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
   const [appView, setAppViewState] = useState('memos')
   const setAppView = useCallback((next) => {
     setAppViewState((prev) => {
@@ -387,6 +389,20 @@ export default function MemoApp() {
       setMemoToDelete(null)
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const confirmDeleteAccount = async () => {
+    if (deletingAccount) return
+    setDeletingAccount(true)
+    try {
+      await deleteAccount()
+      setAccountDeleteOpen(false)
+    } catch (err) {
+      console.error(err)
+      showToast(t('account.deleteFailed'))
+    } finally {
+      setDeletingAccount(false)
     }
   }
 
@@ -732,7 +748,11 @@ export default function MemoApp() {
       </div>
       )}
 
-      <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <HelpDialog
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        onDeleteAccount={() => setAccountDeleteOpen(true)}
+      />
 
       <ConfirmDialog
         open={memoToDelete != null}
@@ -750,6 +770,19 @@ export default function MemoApp() {
         onConfirm={() => void confirmDeleteMemo()}
         onCancel={() => {
           if (!deleting) setMemoToDelete(null)
+        }}
+      />
+
+      <ConfirmDialog
+        open={accountDeleteOpen}
+        title={t('account.deleteTitle')}
+        description={t('account.deleteDescription')}
+        confirmLabel={t('account.deleteConfirm')}
+        cancelLabel={t('common.cancel')}
+        confirming={deletingAccount}
+        onConfirm={() => void confirmDeleteAccount()}
+        onCancel={() => {
+          if (!deletingAccount) setAccountDeleteOpen(false)
         }}
       />
 

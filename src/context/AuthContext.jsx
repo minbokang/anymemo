@@ -7,6 +7,7 @@ import {
   setRememberMe,
 } from '../lib/authStorage'
 import { clearUserCache } from '../lib/memoCache'
+import { clearLastMemoId } from '../lib/userPrefs'
 
 const AuthContext = createContext(null)
 
@@ -60,6 +61,26 @@ export function AuthProvider({ children }) {
     if (uid) await clearUserCache(uid)
   }
 
+  const deleteAccount = async () => {
+    const uid = session?.user?.id
+    if (!uid) throw new Error('Not signed in')
+
+    const { error } = await supabase.rpc('delete_own_account')
+    if (error) throw error
+
+    await clearUserCache(uid)
+    clearLastMemoId(uid)
+    clearRememberedEmail()
+    clearSupabaseAuthFromLocalStorage()
+
+    try {
+      await supabase.auth.signOut({ scope: 'local' })
+    } catch {
+      /* session already invalid after account delete */
+    }
+    setSession(null)
+  }
+
   const resetPassword = async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/`,
@@ -87,6 +108,7 @@ export function AuthProvider({ children }) {
       signUp,
       signIn,
       signOut,
+      deleteAccount,
       resetPassword,
       signInWithGoogle,
     }),

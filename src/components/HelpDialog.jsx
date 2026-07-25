@@ -18,7 +18,7 @@ function HelpItem({ children }) {
   return <li>{children}</li>
 }
 
-export default function HelpDialog({ open, onClose }) {
+export default function HelpDialog({ open, onClose, onDeleteAccount }) {
   const { t } = useTranslation()
   const closeRef = useRef(null)
 
@@ -101,6 +101,23 @@ export default function HelpDialog({ open, onClose }) {
           </HelpSection>
           <HelpSection title={t('help.sectionLang')}>
             <HelpItem>{t('help.langBody')}</HelpItem>
+          </HelpSection>
+          <HelpSection title={t('help.sectionAccount')}>
+            <HelpItem>{t('help.accountBody')}</HelpItem>
+            {onDeleteAccount ? (
+              <li className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose()
+                    onDeleteAccount()
+                  }}
+                  className="text-sm font-medium text-red-600 underline decoration-red-200 underline-offset-2 active:text-red-700 dark:text-red-400 dark:decoration-red-900 dark:active:text-red-300"
+                >
+                  {t('account.delete')}
+                </button>
+              </li>
+            ) : null}
           </HelpSection>
         </div>
         <div className="shrink-0 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">

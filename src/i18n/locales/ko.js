@@ -143,6 +143,17 @@ export const ko = {
     sectionLang: '언어',
     langBody:
       '한국어 / English는 로그아웃 후 로그인 화면 우측에서 선택합니다.',
+    sectionAccount: '계정',
+    accountBody:
+      '로그아웃은 상단 헤더에서 할 수 있습니다. 회원 탈퇴 시 계정과 서버에 저장된 메모가 삭제되며 복구할 수 없습니다. 필요하면 미리 내보내기 하세요.',
+  },
+  account: {
+    delete: '회원 탈퇴',
+    deleteTitle: '회원 탈퇴할까요?',
+    deleteDescription:
+      '계정과 서버에 저장된 모든 메모(휴지통 포함)가 삭제되며 복구할 수 없습니다. 중요한 내용은 먼저 내보내기 해 주세요.',
+    deleteConfirm: '탈퇴하기',
+    deleteFailed: '회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해 주세요.',
   },
   theme: {
     lightMode: '라이트 모드',
