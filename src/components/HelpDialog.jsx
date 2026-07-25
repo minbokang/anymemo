@@ -104,6 +104,20 @@ export default function HelpDialog({ open, onClose }) {
           </HelpSection>
         </div>
         <div className="shrink-0 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
+          <nav className="mb-3 flex justify-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+            <a
+              href="/terms"
+              className="underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100"
+            >
+              {t('legal.terms')}
+            </a>
+            <a
+              href="/privacy"
+              className="underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100"
+            >
+              {t('legal.privacy')}
+            </a>
+          </nav>
           <button
             ref={closeRef}
             type="button"

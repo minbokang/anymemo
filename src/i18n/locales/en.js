@@ -41,8 +41,25 @@ export const en = {
     orDivider: 'or',
     continueWithGoogleSignIn: 'Sign in with Google',
     continueWithGoogleSignUp: 'Sign up with Google',
+    termsJoiner: ' and ',
+    termsAgreement: '. (Required)',
+    termsRequired: 'Agree to the Terms and Privacy Policy to sign up.',
     contactGithub: 'GitHub',
     contactEmail: 'Contact email',
+  },
+  legal: {
+    terms: 'Terms of Service',
+    privacy: 'Privacy Policy',
+    agree: 'Review and agree',
+    googleConsentTitle: 'Continue with Google',
+    googleConsentDescription:
+      'To sign up with Google, you must agree to the AnyMemo Terms of Service and Privacy Policy.',
+    googleConsentHint:
+      'After agreeing, you will choose a Google account. A new AnyMemo account is created automatically the first time.',
+    reviewTerms: 'Review Terms of Service',
+    reviewPrivacy: 'Review Privacy Policy',
+    agreeAndGoogle: 'Agree and continue with Google',
+    backToConsent: 'Back to consent',
   },
   errors: {
     auth: {

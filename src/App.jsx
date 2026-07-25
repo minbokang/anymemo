@@ -1,11 +1,21 @@
 import { useAuth } from './context/AuthContext'
 import { useTranslation } from './context/I18nContext'
 import AuthForm from './components/AuthForm'
+import LegalPage from './components/LegalPage'
 import MemoApp from './components/MemoApp'
 
 function App() {
   const { user, loading } = useAuth()
   const { t } = useTranslation()
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+
+  if (path === '/privacy') {
+    return <LegalPage type="privacy" />
+  }
+
+  if (path === '/terms') {
+    return <LegalPage type="terms" />
+  }
 
   if (loading) {
     return (

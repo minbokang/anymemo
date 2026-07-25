@@ -41,8 +41,25 @@ export const ko = {
     orDivider: '또는',
     continueWithGoogleSignIn: 'Google 계정으로 로그인',
     continueWithGoogleSignUp: 'Google 계정으로 가입',
+    termsJoiner: ' 및 ',
+    termsAgreement: '에 동의합니다. (필수)',
+    termsRequired: '회원가입하려면 이용약관과 개인정보 처리방침에 동의해 주세요.',
     contactGithub: 'GitHub',
     contactEmail: '문의 메일',
+  },
+  legal: {
+    terms: '이용약관',
+    privacy: '개인정보 처리방침',
+    agree: '확인하고 동의',
+    googleConsentTitle: 'Google 계정으로 계속',
+    googleConsentDescription:
+      'Google 계정으로 가입하려면 AnyMemo 이용약관과 개인정보 처리방침에 동의해야 합니다.',
+    googleConsentHint:
+      '동의하면 Google 계정 선택 화면으로 이동하며, 처음 이용하는 계정은 자동으로 가입됩니다.',
+    reviewTerms: '이용약관 확인',
+    reviewPrivacy: '개인정보 처리방침 확인',
+    agreeAndGoogle: '동의하고 Google로 계속',
+    backToConsent: '동의 화면으로',
   },
   errors: {
     auth: {

@@ -9,6 +9,7 @@ import {
   setRememberMe as persistRememberMe,
 } from '../lib/authStorage'
 import LanguageToggle from './LanguageToggle'
+import LegalDialog from './LegalDialog'
 import PlatformInstallGuide from './PlatformInstallGuide'
 import { getContactInfo } from '../lib/contactInfo'
 
@@ -24,9 +25,16 @@ export default function AuthForm() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(getRememberMe)
+  const [legalConsent, setLegalConsent] = useState({
+    terms: false,
+    privacy: false,
+  })
+  const [legalType, setLegalType] = useState(null)
+  const [googleConsentFlow, setGoogleConsentFlow] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const acceptedTerms = legalConsent.terms && legalConsent.privacy
 
   useEffect(() => {
     if (mode === 'signIn' && rememberMe) {
@@ -80,9 +88,7 @@ export default function AuthForm() {
     if (!checked) clearRememberedEmail()
   }
 
-  const handleGoogleSignIn = async () => {
-    setError('')
-    setMessage('')
+  const startGoogleSignIn = async () => {
     applyRememberPreference(rememberMe)
     try {
       await signInWithGoogle()
@@ -90,6 +96,17 @@ export default function AuthForm() {
     } catch (err) {
       setError(formatAuthError(err, locale))
     }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setError('')
+    setMessage('')
+    if (mode === 'signUp' && !acceptedTerms) {
+      setGoogleConsentFlow(true)
+      setLegalType('consent')
+      return
+    }
+    await startGoogleSignIn()
   }
 
   return (
@@ -183,6 +200,47 @@ export default function AuthForm() {
               <span className="mt-0.5 block text-xs text-zinc-400 dark:text-zinc-500">
                 {t('auth.rememberMeHint')}
               </span>
+            </span>
+          </label>
+        )}
+
+        {mode === 'signUp' && (
+          <label className="flex cursor-pointer items-start gap-2 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800/60">
+            <input
+              type="checkbox"
+              required
+              checked={acceptedTerms}
+              onChange={(e) => {
+                const checked = e.target.checked
+                setLegalConsent({ terms: checked, privacy: checked })
+              }}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-400 dark:border-zinc-600"
+            />
+            <span className="text-xs leading-5 text-zinc-600 dark:text-zinc-300">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  setLegalType('terms')
+                }}
+                className="font-medium underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100"
+              >
+                {t('legal.terms')}
+              </button>
+              {t('auth.termsJoiner')}
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  setLegalType('privacy')
+                }}
+                className="font-medium underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:hover:text-zinc-100"
+              >
+                {t('legal.privacy')}
+              </button>
+              {t('auth.termsAgreement')}
             </span>
           </label>
         )}
@@ -285,6 +343,26 @@ export default function AuthForm() {
     </div>
 
       <footer className="safe-bottom mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+        <button
+          type="button"
+          onClick={() => setLegalType('terms')}
+          className="text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          {t('legal.terms')}
+        </button>
+        <span className="mx-2 text-zinc-300 dark:text-zinc-600" aria-hidden>
+          ·
+        </span>
+        <button
+          type="button"
+          onClick={() => setLegalType('privacy')}
+          className="text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          {t('legal.privacy')}
+        </button>
+        <span className="mx-2 text-zinc-300 dark:text-zinc-600" aria-hidden>
+          ·
+        </span>
         <a
           href={githubUrl}
           target="_blank"
@@ -305,6 +383,44 @@ export default function AuthForm() {
           {contactEmail}
         </a>
       </footer>
+      <LegalDialog
+        type={legalType}
+        onClose={() => {
+          if (googleConsentFlow && legalType !== 'consent') {
+            setLegalType('consent')
+            return
+          }
+          setGoogleConsentFlow(false)
+          setLegalType(null)
+        }}
+        onSelectType={setLegalType}
+        agreeLabel={
+          legalType === 'consent' ? t('legal.agreeAndGoogle') : undefined
+        }
+        closeLabel={
+          googleConsentFlow && legalType !== 'consent'
+            ? t('legal.backToConsent')
+            : undefined
+        }
+        onAgree={
+          mode === 'signUp'
+            ? () => {
+                if (legalType === 'consent') {
+                  setLegalConsent({ terms: true, privacy: true })
+                  setGoogleConsentFlow(false)
+                  setLegalType(null)
+                  void startGoogleSignIn()
+                  return
+                }
+                setLegalConsent((current) => ({
+                  ...current,
+                  [legalType]: true,
+                }))
+                setLegalType(googleConsentFlow ? 'consent' : null)
+              }
+            : undefined
+        }
+      />
     </div>
   )
 }
